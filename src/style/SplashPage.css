@@ -1,0 +1,183 @@
+html, body{
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* prevents scrolling */
+}
+
+/* SplashPage.css */
+.splash {
+  display: flex;
+  flex-direction: column;      /* stack content vertically */
+  justify-content: flex-start; /* start from top */
+  align-items: center;         /* center horizontally */
+  padding-top: 2%;           /* pushes content slightly down */
+  height: 100vh;
+  background-color: #000000;
+  font-size: 2rem;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* SplashPage.css */
+.splash-title {
+  font-family: 'Aldrich', sans-serif;
+  font-size: 3rem;
+  text-align: center;
+}
+.splash h1 {
+  font-family: Aldrich;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 64px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  z-index: 3;
+
+}
+
+ .splash h2 {
+  font-family: Roboto;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 50px;
+  leading-trim: NONE;
+  line-height: 72px;
+  letter-spacing: 0%;
+  text-align: center;
+  z-index: 3;
+
+}
+
+.splash h5{
+  font-family: Roboto;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 25px;
+  line-height: 30px;
+  letter-spacing: 0%;
+  text-align: center;
+  color: #A1A1AA;
+  margin: 5px;
+  z-index: 3;
+
+}
+ /* .splash button{
+  width: 269px;
+  height: 56px;
+  top: 493px;
+  left: 585px;
+  opacity: 1;
+  border-radius: 999px;
+ 
+  font-family: Roboto;
+  font-weight: 500;
+  font-style: Regular;
+  font-size: 25px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  margin: 5px;
+  z-index: 3;
+} */
+.login-button{
+  width: 200px;
+  height: 35px;
+  top: 493px;
+  left: 585px;
+  opacity: 1;
+  border-radius: 999px;
+  background-color:#ffffff;
+  font-family: Roboto;
+  font-style: regular;
+  font-size: 25px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  margin: 5px;
+  z-index: 1;
+  margin-bottom: -5px;
+}
+.register-button{
+  width: 269px;
+  height: 56px;
+  top: 493px;
+  left: 585px;
+  opacity: 1;
+  border-radius: 999px;
+  background-color:#00FF1E;
+  font-family: Roboto;
+  font-style: regular;
+  font-size: 25px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+  margin: 5px;
+  z-index: 3;
+}
+
+.splash img {
+  width: 1024px;
+  height: 768px;
+  display: block;           
+  border-radius: 12px;
+  border: 1px solid #000;    
+  opacity: 1;
+  object-fit: cover;         
+  position: relative;        
+  top: 10px;                    
+  left: 0;                  
+  box-shadow: 0 0 99px 10px #6D28D9;
+  z-index:0;
+  /* Cut off bottom 20px */
+  /* clip-path: inset(0 0 100px 0); */
+}
+.splash-image{
+  position: relative;     
+  width: 120vh;
+  height: 120vh;
+  margin-top: 1rem;
+
+  z-index:0;
+}
+.splash-image img{
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 12px;
+  object-fit: cover;
+  position: relative;
+  z-index: 0;   
+}
+.glow{
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  width: 120%;           /* slightly larger than image */
+  height: 120%;
+  background: radial-gradient(circle, rgba(100,108,255,0.4) 0%, rgba(100,108,255,0) 70%); 
+  transform: translate(-50%, -50%);
+  filter: blur(1000px);    /* only the glow is blurred */
+  z-index: 0;            /* behind image */
+  border-radius: 50%;    
+  pointer-events: none;
+
+}
+.word-white {
+  color: #FFFFFF; /* white */
+}
+
+.word-green {
+  color: #00FF1E; /* green */
+}
+
+ .splash p {
+  text-align: center;
+  color: #6D28D9;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
