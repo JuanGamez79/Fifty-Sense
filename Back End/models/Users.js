@@ -1,12 +1,15 @@
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
+// Settings info should be saved in Users if required
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     user_id: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    date_created: { type: Date, default: Date.now, required: true}
+    first_name: { type: String },
+    last_name: { type: String },
+    email: { type: String, unique: true },
+    password: { type: String },
+    date_created: { type: Date, default: Date.now }
 });
 
-export default model('Users', userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = User;

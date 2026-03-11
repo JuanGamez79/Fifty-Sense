@@ -5,8 +5,8 @@ const UserController = {
         try{
             const newUser = await User.create(req.body);
             res.status(201).send(newUser);
-        } catch (error){
-            res.status(400).json({ message: error.message });
+        } catch(error) {
+            return res.status(404).json({ message: "Error"})  //Temp error message
         }
     },
 
@@ -14,16 +14,16 @@ const UserController = {
         try{
             const { id } = req.params;
             const deletedUser = await User.findByIdAndDelete(id);
-    
+
             if(!deletedUser){
                 return res.status(404).json({ message: "User not found" });
             }
-        } catch (error){
-            res.status(500).json({ message: error.message });
+        } catch(error) {
+            return res.status(404).json({ message: "Error"})  //Temp error message
         }
-    },
-
+        
+    }
 
 };
 
-export default UserController;
+module.exports = UserController;
