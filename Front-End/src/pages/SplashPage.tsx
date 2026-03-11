@@ -5,7 +5,7 @@ export default function SplashPage() {
   return (
     <div className="splash">
       <div className = "glow"></div>
-      <h1 className = "word-white"> Help</h1>
+      <h1 className = "word-white"> Fifty</h1>
       <h1 className = "word-green"> Sense</h1>
       <h2>Budget Smarter.</h2>
       <h2>Live Better.</h2>
