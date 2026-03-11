@@ -1,8 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 app.use(express.json());
@@ -27,25 +25,25 @@ mongoose.connect(uri)
   .catch(err => console.error("MongoDB connection error:", err));
 
 
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Budgeting App API',
-      version: '1.0.0',
-      description: 'API documentation',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-      },
-    ],
-  },
-  apis: ['./routes/*.js'], 
-};
+// const swaggerOptions = {
+//   swaggerDefinition: {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'Budgeting App API',
+//       version: '1.0.0',
+//       description: 'API documentation',
+//     },
+//     servers: [
+//       {
+//         url: 'http://localhost:3000',
+//       },
+//     ],
+//   },
+//   apis: ['./routes/*.js'], 
+// };
 
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// const swaggerSpec = swaggerJSDoc(swaggerOptions);
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerjsonFilePath));
 
 
 app.listen(port, () => {

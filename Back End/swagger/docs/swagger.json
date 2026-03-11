@@ -13,12 +13,8 @@
   "basePath": "/",
   "tags": [
     {
-      "name": "TODO CRUD",
-      "description": "TODO related apis"
-    },
-    {
-      "name": "Todo",
-      "description": "Todo App"
+      "name": "FiftySense API",
+      "description": "FiftySense database api testing"
     }
   ],
   "schemes": [
@@ -35,6 +31,35 @@
     "/api/users/": {
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "example": "any"
+                },
+                "email": {
+                  "example": "any"
+                },
+                "password": {
+                  "example": "any"
+                },
+                "first_name": {
+                  "example": "any"
+                },
+                "last_name": {
+                  "example": "any"
+                },
+                "date_created": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "Created"
@@ -57,6 +82,9 @@
           }
         ],
         "responses": {
+          "201": {
+            "description": "Created"
+          },
           "404": {
             "description": "Not Found"
           },

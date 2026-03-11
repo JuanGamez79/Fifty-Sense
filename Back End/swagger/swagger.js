@@ -25,13 +25,9 @@ const swaggerDocument = {
   produces: ["application/json"],
   tags: [
     {
-      name: "TODO CRUD",
-      description: "TODO related apis",
-    },
-    {
-      name: "Todo",
-      description: "Todo App",
-    },
+      name: "FiftySense API",
+      description: "FiftySense database api testing",
+    }
   ],
   securityDefinitions: {},
   definitions: {
@@ -66,11 +62,3 @@ const swaggerDocument = {
 const swaggerFile= "./docs/swagger.json";
 const apiRouteFile= ["./app.js"];
 generateSwagger(swaggerFile, apiRouteFile, swaggerDocument);
-
-// const swaggerAutogen = require('swagger-autogen');
-// const outputFile = './swagger_output.json';
-// const endpointsFiles = ['./routes']; // root file where the route starts.
-
-// swaggerAutogen(outputFile, endpointsFiles).then(() => {
-//     require('../app.js');           // Your project's root file
-// })
