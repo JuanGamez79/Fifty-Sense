@@ -1,9 +1,20 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+
+const corsOptions = {
+    origin: 'http://localhost:3006', 
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    optionsSuccessStatus: 200 
+};
 
 const app = express();
 app.use(express.json());
+app.use(cors(corsOptions));
+app.disable("x-powered-by");
+app.use(express.urlencoded({ extended: false }));
+
 
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
@@ -16,7 +27,7 @@ const swaggerjsonFilePath = require("./swagger/docs/swagger.json");
 app.use("/api-docs", swaggerUIPath.serve, swaggerUIPath.setup(swaggerjsonFilePath));
 
 const uri = process.env.MONGODB_URI;
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3006;
 
 
 // Connect to the Database
@@ -35,7 +46,7 @@ mongoose.connect(uri)
 //     },
 //     servers: [
 //       {
-//         url: 'http://localhost:3000',
+//         url: 'http://localhost:3006',
 //       },
 //     ],
 //   },

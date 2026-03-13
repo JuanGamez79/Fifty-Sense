@@ -9,7 +9,7 @@
       "email": "tiwariankit496@gmail.com"
     }
   },
-  "host": "localhost:3000",
+  "host": "localhost:3006",
   "basePath": "/",
   "tags": [
     {
@@ -28,7 +28,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/users/": {
+    "/api/users/register": {
       "post": {
         "description": "",
         "parameters": [
@@ -38,7 +38,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
+                "user_id": {
                   "example": "any"
                 },
                 "email": {
@@ -52,17 +52,17 @@
                 },
                 "last_name": {
                   "example": "any"
-                },
-                "date_created": {
-                  "example": "any"
                 }
               }
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "500": {
             "description": "Internal Server Error"

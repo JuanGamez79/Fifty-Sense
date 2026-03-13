@@ -18,7 +18,7 @@ const swaggerDocument = {
       email: "tiwariankit496@gmail.com",
     },
   },
-  host: "localhost:3000",
+  host: "localhost:3006",
   basePath: "/",
   schemes: ["http"],
   consumes: ["application/json"],

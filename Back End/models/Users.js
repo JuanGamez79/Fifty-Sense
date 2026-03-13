@@ -4,29 +4,31 @@ const bcrypt = require('bcrypt');
 // Settings info should be saved in Users if required
 
 const userSchema = new mongoose.Schema({
-    user_id: { type: String, required: true },
+    user_id: { type: String, required: "User ID is required" },
     first_name: { type: String },
     last_name: { type: String },
     email: { type: String, unique: true, lowercase: true, trim: true },
-    password: { type: String },
+    password: { type: String, select: false },
     date_created: { type: Date, default: Date.now }
 });
 
-// Should hash passwords before being saved to the DB
-userSchema.pre("save", function (next) {
+
+// Hash the password before saving the user to the database
+userSchema.pre("save", async function () {
     const user = this;
 
-    if (!user.isModified("password")) return next();
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) return next(err);
+    if (!user.isModified("password")) return;
 
-        bcrypt.hash(user.password, salt, (err, hash) => {
-            if (err) return next(err);
+    try {
+        const salt = await bcrypt.genSalt(10);
+        
+        const hash = await bcrypt.hash(user.password, salt);
+        
+        user.password = hash;
 
-            user.password = hash;
-            next();
-        });
-    });
+    } catch (error) {
+        throw error; 
+    }
 });
 
 const User = mongoose.model("User", userSchema);
