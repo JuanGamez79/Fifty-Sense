@@ -21,7 +21,6 @@
     font-weight: 400;
     font-style: Regular;
     font-size: 25px;
-    leading-trim: NONE;
     line-height: 30px;
     letter-spacing: 0%;
     text-align: center;
@@ -37,7 +36,7 @@
     min-height: 100vh;
     width: 50%;
     text-align: center;
-    gap: 20px;
+    gap: 50px;
     position: absolute;
     right: 0;
 }
@@ -101,7 +100,6 @@
     font-weight: 400;
     font-style: Regular;
     font-size: 50px;
-    leading-trim: NONE;
     line-height: 72px;
     letter-spacing: 0%;
     text-align: center;
@@ -116,23 +114,19 @@
     left: 50%;
     top: 5%;
 }
-.register img.user{
-    
-    z-index: 3;
-    transform:translate(-700%, 150%);
-}
-.register img.email{
-    z-index: 3;
-    transform:translate(-550%, 200%);
-}
-.register img.password{
-    z-index: 3;
-    transform:translate(-780%, 150%);
+.register .input-wrapper {
+    position: relative;
+    width: 490px;
 }
 
-.register img.password2 {
+.register .input-wrapper img {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
     z-index: 3;
-    transform: translate(-780%, 150%);
+    width: 30px;
+    height: 30px;
 }
 
 .register a{
