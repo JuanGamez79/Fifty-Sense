@@ -1,45 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/Users');
+const UserController = require('../controllers/userController');
+const authenticateToken = require('../middleware/authMiddleware');
 
+// POST /api/users/register
+// Creates a new user account.
+// Frontend sends: user_id, first_name, last_name, email, password
+// Success response includes safe user data + JWT token.
+// Use this when the Create Account form is submitted.
+router.post('/register', UserController.register);
 
-router.post('/', async (req, res) => {
-        try{
-            const newUser = await User.create(req.body);
-            res.status(201).send(newUser);
-        } catch(error) {
-            return res.status(500).json({ message: "Error"})  
-        }
-    });
-    
-router.delete('/:id', async (req, res) => {
-        try{
-            const { id } = req.params;
-            const deletedUser = await User.findByIdAndDelete(id);
+// POST /api/users/login
+// Logs in an existing user.
+// Frontend sends: email, password
+// Success response includes safe user data + JWT token.
+// Save the returned token on the frontend and send it in future protected requests.
+router.post('/login', UserController.login);
 
-            if(!deletedUser){
-                return res.status(404).json({ message: "User not found" });
-            }
-        } catch(error) {
-            return res.status(500).json({ message: "Error"})  
-        }
-    });
+// GET /api/users/profile
+// Returns the currently authenticated user's profile.
+// Frontend must send:
+// Authorization: Bearer <token>
+// Use this to restore user state after refresh or load account/profile data.
+router.get('/profile', authenticateToken, UserController.getProfile);
 
-router.post('/login', async (req, res) => {
-    try{
-        const { email, password} = req.body;
-
-        const user = await User.find(u => u.email === email && u.password === password);
-
-        if (!user){
-            return res.status(401).json({ message: 'Invalid Credentials' });
-        }
-
-        res.json({ message: "Success", user: user.user_id });
-    } catch(error) {
-        return res.status(500).json({ message: "User Login Error"})  
-    }
-})
-
+// DELETE /api/users/:id
+// Deletes a user by MongoDB document id.
+// This is mostly for backend/admin/dev use unless the app includes account deletion.
+router.delete('/:id', UserController.deleteUser);
 
 module.exports = router;

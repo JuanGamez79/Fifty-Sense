@@ -18,7 +18,7 @@ const swaggerDocument = {
       email: "tiwariankit496@gmail.com",
     },
   },
-  host: "localhost:3000",
+  host: "localhost:3006",
   basePath: "/",
   schemes: ["http"],
   consumes: ["application/json"],
@@ -66,11 +66,3 @@ const swaggerDocument = {
 const swaggerFile= "./docs/swagger.json";
 const apiRouteFile= ["./app.js"];
 generateSwagger(swaggerFile, apiRouteFile, swaggerDocument);
-
-// const swaggerAutogen = require('swagger-autogen');
-// const outputFile = './swagger_output.json';
-// const endpointsFiles = ['./routes']; // root file where the route starts.
-
-// swaggerAutogen(outputFile, endpointsFiles).then(() => {
-//     require('../app.js');           // Your project's root file
-// })
