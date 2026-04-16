@@ -7,7 +7,8 @@ const budgetSchema = new Schema({
     budget_name: { type: String, required: true },
     current_amount: { type: Number, required: true },
     amount_remaining: { type: Number, required: true },
-    date_created: { type: Date, default: Date.now }
+    date_created: { type: Date, default: Date.now },
+    is_active: { type: Boolean, default: true }
 });
 
 export default model('Budgets', budgetSchema);

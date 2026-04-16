@@ -34,9 +34,8 @@ const accountController = {
 
     getUserAccounts: async (req, res) => {
         try{
-            const { userId } = req.params;
-            // Finds all accounts matching the user_id
-            const accounts = await Account.find({ user_id: userId });
+            const { user_id } = req.params;
+            const accounts = await Account.find({ user_id: user_id });
             res.status(200).json(accounts);
         } catch(error) {
             res.status(500).json({ message: "Error fetching accounts", error: error.message });        }
@@ -44,28 +43,6 @@ const accountController = {
 
     updateAccount: async (req, res) => {
         try{
-            // --- OLD IMPLEMENTATION ---
-            // const { id } = req.params;
-            // const { balance } = req.body;
-
-            // if (balance === undefined) {
-            //     return res.status(400).json({ error: 'Please provide a new balance.' }); 
-            // }
-            
-            // const updatedAccount = await Account.findByIdAndUpdate(
-            //     id,
-            //     { balance: balance }, 
-            //     { 
-            //     new: true,           
-            //     runValidators: true  
-            //     }
-            // );
-
-            // if (!updatedAccount) {
-            //     return res.status(404).json({ error: 'Account not found' });
-            // }
-
-            // res.status(200).json(updatedAccount);
             const { account_id } = req.params;
     
             const updatedAccount = await Account.findByIdAndUpdate(

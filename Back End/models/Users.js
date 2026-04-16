@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     last_name: { type: String, required: 'Last name is required', trim: true },
     email: { type: String, required: 'Email is required', unique: true, lowercase: true, trim: true },
     password: { type: String, required: 'Password is required', select: false },
-    date_created: { type: Date, default: Date.now }
+    date_created: { type: Date, default: Date.now },
+    is_active: { type: Boolean, default: true }
 });
 
 // Hash the password before saving the user to the database
