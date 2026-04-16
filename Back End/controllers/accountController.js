@@ -20,60 +20,115 @@ const accountController = {
     getSingleAccount: async (req, res) => {
         try{
             const { account_id } = req.params;
-            const account = await Account.findById(account_id);
+            const account = await Account.findById({ _id: account_id, is_active: { $ne: false } });
             
             if (!account) {
-                return res.status(404).json({ message: "Account not found" });
+                return res.status(404).json({
+                    status: 'failed',
+                    data: [],
+                    message: 'Account not found'
+                });            
             }
             
-            res.status(200).json(account);
+            return res.status(200).json({
+                status: 'success',
+                data: [account],
+                message: 'Account successfully fetched'
+            });
         } catch(error) {
-            res.status(500).json({ message: "Error fetching account", error: error.message });        
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error fetching account',
+                error: error.message
+            });        
         }
     },
 
     getUserAccounts: async (req, res) => {
         try{
             const { user_id } = req.params;
-            const accounts = await Account.find({ user_id: user_id });
-            res.status(200).json(accounts);
+            
+            const accounts = await Account.find({ user_id: user_id, is_active: { $ne: false } });            
+            
+            return res.status(200).json({
+                status: 'success',
+                data: accounts, 
+                message: 'Accounts successfully fetched'
+            });
         } catch(error) {
-            res.status(500).json({ message: "Error fetching accounts", error: error.message });        }
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error fetching accounts',
+                error: error.message
+            });
+        }
     },
 
     updateAccount: async (req, res) => {
         try{
             const { account_id } = req.params;
     
-            const updatedAccount = await Account.findByIdAndUpdate(
-                account_id, 
-                req.body, 
-                { new: true, runValidators: true } 
+            const updatedAccount = await Account.findOneAndUpdate(
+                { _id: account_id, is_active: { $ne: false } },
+                req.body,
+                { new: true, runValidators: true }
             );
 
             if (!updatedAccount) {
-                return res.status(404).json({ message: "Account not found" });
+               return res.status(404).json({
+                    status: 'failed',
+                    data: [],
+                    message: 'Account not found'
+                });
             }
             
-            res.status(200).json(updatedAccount);
+            return res.status(200).json({
+                status: 'success',
+                data: [updatedAccount],
+                message: 'Account successfully updated'
+            });
         } catch(error) {
-            res.status(500).json({ message: "Error updating account", error: error.message });
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error updating account',
+                error: error.message
+            });
         }
            
     },
     
     deleteAccount: async (req, res) => {
         try{
-            const { accountId } = req.params;
-            const deletedAccount = await Account.findByIdAndDelete(accountId);
+            const { account_id } = req.params;
+            const deletedAccount = await Account.findOneAndUpdate(
+                { _id: account_id, is_active: { $ne: false } },
+                { is_active: false },
+                { new: true }
+            );
             
             if (!deletedAccount) {
-                return res.status(404).json({ message: "Account not found" });
+               return res.status(404).json({
+                    status: 'failed',
+                    data: [],
+                    message: 'Account not found or already deleted'
+                });
             }
             
-            res.status(200).json({ message: "Account deleted successfully" });
+            return res.status(200).json({
+                status: 'success',
+                data: [],
+                message: 'Account deleted successfully'
+            });
         } catch(error) {
-            res.status(500).json({ message: "Error deleting account", error: error.message });        
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error deleting account',
+                error: error.message
+            });
         }
     },
 

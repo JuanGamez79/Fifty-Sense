@@ -6,23 +6,21 @@ const TransactionController = {
         try {
             const { account_id, category_id, type, amount, date, description } = req.body;
 
-            // Create new transaction
             const newTransaction = new Transaction({
-            account_id,
-            category_id,
-            type,
-            amount,
-            date,
-            description
+                account_id,
+                category_id,
+                type,
+                amount,
+                date,
+                description
             });
 
-            // Find the linked account
             const account = await Account.findOne({ account_id : account_id });
             if (!account) {
                 return res.status(404).json({ message: "Transaction saved, but linked Account not found." });
             }
             
-            // Do the math based on the transaction type (MUST CAST amount TO A NUMBER)
+
             if (type === "income") {
                 account.balance += Number(amount);
             } 
@@ -31,7 +29,7 @@ const TransactionController = {
                 account.balance -= Number(amount);
             }
 
-            // Save the new transaction and updated account balance
+
             const savedTransaction = await newTransaction.save();
             await account.save();
 
@@ -98,7 +96,7 @@ const TransactionController = {
             const { transaction_id } = req.params;
             
             // Find the transaction before deleting it so we know the amount and type
-            const transaction = await Transaction.findOne({ transaction_id: transaction_id });
+            const transaction = await Transaction.findOne({ transaction_id: transaction_id, is_active: { $ne: false } });
             if (!transaction) {
                 return res.status(404).json({ message: "Transaction not found" });
             }
@@ -120,7 +118,11 @@ const TransactionController = {
             }
 
             // Delete transaction
-            await Transaction.findOneAndDelete({ transaction_id: transaction_id });
+            await Transaction.findOneAndDelete(
+                { transaction_id: transaction_id },
+                { is_active: false },
+                { new: true }
+            );
 
             res.status(200).json({ 
                 message: "Transaction deleted and balance adjusted",
