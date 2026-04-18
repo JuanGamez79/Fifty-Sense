@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
 
-const budgetSchema = new Schema({
+const budgetSchema = new mongoose.Schema({
     budget_id: { type: String, required: true },
     category_id: { type: String, required: true },
     budget_name: { type: String, required: true },
@@ -11,4 +11,5 @@ const budgetSchema = new Schema({
     is_active: { type: Boolean, default: true }
 });
 
-export default model('Budgets', budgetSchema);
+const Budgets = mongoose.model("Budgets", budgetSchema);
+module.exports = Budgets;

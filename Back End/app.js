@@ -19,6 +19,12 @@ app.use('/api/transactions', transactionRoutes);
 const categoryRoutes = require('./routes/categoryRoutes');
 app.use('/api/categories', categoryRoutes);
 
+const budgetRoutes = require('./routes/budgetRoutes');
+app.use('/api/budgets', budgetRoutes);
+
+const goalRoutes = require('./routes/goalRoutes');
+app.use('/api/goals/', goalRoutes);
+
 const swaggerUIPath= require("swagger-ui-express");
 const swaggerjsonFilePath = require("./swagger/docs/swagger.json");
 app.use("/api-docs", swaggerUIPath.serve, swaggerUIPath.setup(swaggerjsonFilePath));

@@ -1,7 +1,7 @@
-import { Schema, model } from 'mongoose';
+const mongoose = require('mongoose');
 
 
-const goalSchema = new Schema({
+const goalSchema = new mongoose.Schema({
     goal_id: { type: String, required: true },
     user_id: { type: String, required: true },
     target_amount: { type: Number, required: true },
@@ -12,4 +12,5 @@ const goalSchema = new Schema({
     is_active: { type: Boolean, default: true }
 });
 
-export default model('Goals', goalSchema);
+const Goals = mongoose.model("Goals", goalSchema);
+module.exports = Goals;
