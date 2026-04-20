@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 
 const goalSchema = new mongoose.Schema({
-    goal_id: { type: String, required: true },
+    goal_id: { type: String, default: () => crypto.randomUUID(), required: true, },
     user_id: { type: String, required: true },
     target_amount: { type: Number, required: true },
     current_amount: { type: Number, required: true },

@@ -1,4 +1,4 @@
-const express = requires('express');
+const express = require('express');
 const router = express.Router();
 const goalController = require('../controllers/goalController.js')
 
@@ -36,3 +36,6 @@ router.put('/:goal_id', goalController.updateGoal);
 // Success response includes a success message.
 // Use this when a user removes a goal they no longer wish to track.
 router.delete('/:goal_id', goalController.deleteGoal);
+
+
+module.exports = router;

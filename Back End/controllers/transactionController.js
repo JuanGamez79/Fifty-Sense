@@ -102,7 +102,7 @@ const TransactionController = {
             }
 
             // Find the linked account
-            const account = await Account.findOne({ account_id :transaction.account_id });
+            const account = await Account.findOne({ account_id : transaction.account_id });
             
             // If we delete an expense, we add the money back. If we delete income, we subtract it.
             if (account) { 
