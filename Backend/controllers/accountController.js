@@ -1,84 +1,137 @@
+const Account = require('../models/Accounts');
 
 const accountController = {
-    create: async (req, res) => {
+    createAccount: async (req, res) => {
         try{
-            const newAccount = await Account.create(req.body);
-            res.status(201).send(newAccount);
+            const { user_id, account_name, balance } = req.body;
+    
+            const newAccount = new Account({
+                user_id,
+                account_name,
+                balance
+            });
+
+            const savedAccount = await newAccount.save();
+            res.status(201).send(savedAccount);
         } catch(error) {
-             return res.status(500).json({ message: "Error"})  //Temp error message
-        }
+            res.status(500).json({ message: "Error creating account", error: error.message });        }
     },
 
-    delete: async (req, res) => {
+    getSingleAccount: async (req, res) => {
         try{
-            const { id } = req.params;
-            const deletedAccount = await Account.findByIdAndDelete(id);
+            const { account_id } = req.params;
+            const account = await Account.findById({ account_id: account_id, is_active: { $ne: false } });
             
-            if (!deletedAccount) {
-                return res.status(404).json({ message: "Account not found" });
-            }
-            
-            res.status(204).send();
-        } catch(error) {
-            return res.status(500).json({ message: "Error"})  //Temp error message
-        }
-    },
-
-    getAll: async (req, res) => {
-        try{
-
-        } catch(error) {
-             return res.status(500).json({ message: "Error"})  //Temp error message
-        }
-        const allAccounts = await Account.find({});
-        res.status(200).json();
-    },
-
-    getById: async (req, res) => {
-        try{
-            const account = await Account.findById(req.params.id);
-        
             if (!account) {
-                return res.status(404).json({ error: 'Account not found' });
-            }
-
-            res.status(200).json(account);
-        } catch(error) {
-            return res.status(500).json({ message: "Error"})  //Temp error message
-        }
-        
-    },
-
-    updateBalance: async (req, res) => {
-        try{
-            const { id } = req.params;
-            const { balance } = req.body;
-
-            if (balance === undefined) {
-                return res.status(400).json({ error: 'Please provide a new balance.' }); 
+                return res.status(404).json({
+                    status: 'failed',
+                    data: [],
+                    message: 'Account not found'
+                });            
             }
             
-            const updatedAccount = await Account.findByIdAndUpdate(
-                id,
-                { balance: balance }, 
-                { 
-                new: true,           
-                runValidators: true  
-                }
+            return res.status(200).json({
+                status: 'success',
+                data: [account],
+                message: 'Account successfully fetched'
+            });
+        } catch(error) {
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error fetching account',
+                error: error.message
+            });        
+        }
+    },
+
+    getUserAccounts: async (req, res) => {
+        try{
+            const { user_id } = req.params;
+            
+            const accounts = await Account.find({ user_id: user_id, is_active: { $ne: false } });            
+            
+            return res.status(200).json({
+                status: 'success',
+                data: accounts, 
+                message: 'Accounts successfully fetched'
+            });
+        } catch(error) {
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error fetching accounts',
+                error: error.message
+            });
+        }
+    },
+
+    updateAccount: async (req, res) => {
+        try{
+            const { account_id } = req.params;
+    
+            const updatedAccount = await Account.findOneAndUpdate(
+                { account_id: account_id, is_active: { $ne: false } },
+                req.body,
+                { new: true, runValidators: true }
             );
 
             if (!updatedAccount) {
-                return res.status(404).json({ error: 'Account not found' });
+               return res.status(404).json({
+                    status: 'failed',
+                    data: [],
+                    message: 'Account not found'
+                });
             }
-
-            res.status(200).json(updatedAccount);
+            
+            return res.status(200).json({
+                status: 'success',
+                data: [updatedAccount],
+                message: 'Account successfully updated'
+            });
         } catch(error) {
-             return res.status(500).json({ message: "Error"})  //Temp error message
-
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error updating account',
+                error: error.message
+            });
         }
            
-    }
+    },
+    
+    deleteAccount: async (req, res) => {
+        try{
+            const { account_id } = req.params;
+            const deletedAccount = await Account.findOneAndUpdate(
+                { account_id: account_id, is_active: { $ne: false } },
+                { is_active: false },
+                { new: true }
+            );
+            
+            if (!deletedAccount) {
+               return res.status(404).json({
+                    status: 'failed',
+                    data: [],
+                    message: 'Account not found or already deleted'
+                });
+            }
+            
+            return res.status(200).json({
+                status: 'success',
+                data: [],
+                message: 'Account deleted successfully'
+            });
+        } catch(error) {
+            return res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error deleting account',
+                error: error.message
+            });
+        }
+    },
 
 }
 
-module.export = accountController;
+module.exports = accountController;

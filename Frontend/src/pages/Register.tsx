@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../style/register.css';
+import '../style/Register.css';
 import { useAuth } from '../api/useAuth';
 import { registerUser } from '../api/auth';
 

@@ -12,6 +12,7 @@ import Calendar from './pages/Calendar';
 import Analytics from './pages/Analytics';
 import AIInsights from './pages/AIInsights';
 import MonthlyRecaps from './pages/MonthlyRecaps';
+import Account from './pages/Account';
 import Register from './pages/Register';
 import Login from './pages/Login';
 
@@ -33,6 +34,7 @@ export default function App() {
       <Route element={<PrivateRoute />}>
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="Account" element={<Account />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="budgets" element={<Budgets />} />
           <Route path="goals" element={<Goals />} />

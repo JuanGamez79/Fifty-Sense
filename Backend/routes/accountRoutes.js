@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-// import * as AccountController from '../controllers/accountController.js';
 const AccountController = require('../controllers/accountController.js');
+const authenticateToken = require('../middleware/authMiddleware'); // ← fix
 
-router.post('/', AccountController.create);
-router.delete('/', AccountController.delete);
-router.get('/', AccountController.getAll);
-router.patch('/:id', AccountController.updateBalance);
+router.post('/create', authenticateToken, AccountController.createAccount);
+router.get('/user/:user_id', authenticateToken, AccountController.getUserAccounts);
+router.get('/:account_id', authenticateToken, AccountController.getSingleAccount);
+router.put('/:account_id', authenticateToken, AccountController.updateAccount);
+router.delete('/delete/:account_id', authenticateToken, AccountController.deleteAccount);
 
 module.exports = router;

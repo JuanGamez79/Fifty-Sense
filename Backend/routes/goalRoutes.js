@@ -1,6 +1,12 @@
-const express = requires('express');
+const express = require('express');
 const router = express.Router();
-import * as GoalController from '../controllers/goalController.js';
+const goalController = require('../controllers/goalController.js');
+const authenticateToken = require('../middleware/authMiddleware');
 
-router.post('/api/users', GoalController.create);
-router.delete('/api/users', GoalController.delete);
+router.post('/create', authenticateToken, goalController.createGoal);
+router.get('/user/:user_id', authenticateToken, goalController.getUserGoals);
+router.get('/:goal_id', authenticateToken, goalController.getSingleGoal);
+router.put('/:goal_id', authenticateToken, goalController.updateGoal);
+router.delete('/:goal_id', authenticateToken, goalController.deleteGoal);
+
+module.exports = router;
