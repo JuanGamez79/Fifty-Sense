@@ -19,8 +19,20 @@ app.use(express.urlencoded({ extended: false }));
 const userRoutes = require('./routes/userRoutes');
 app.use('/api/users', userRoutes);
 
-// const accountRoutes = require('./routes/accountRoutes');
-// app.use('/api/accounts', accountRoutes);
+const accountRoutes = require('./routes/accountRoutes');
+app.use('/api/accounts', accountRoutes);
+
+const transactionRoutes = require('./routes/transactionRoutes');
+app.use('/api/transactions', transactionRoutes);
+
+const categoryRoutes = require('./routes/categoryRoutes');
+app.use('/api/categories', categoryRoutes);
+
+// const budgetRoutes = require('./routes/budgetRoutes');
+// app.use('/api/budgets', budgetRoutes);
+
+const goalRoutes = require('./routes/goalRoutes');
+app.use('/api/goals', goalRoutes);
 
 const swaggerUIPath= require("swagger-ui-express");
 const swaggerjsonFilePath = require("./swagger/docs/swagger.json");
@@ -36,25 +48,25 @@ mongoose.connect(uri)
   .catch(err => console.error("MongoDB connection error:", err));
 
 
-// const swaggerOptions = {
-//   swaggerDefinition: {
-//     openapi: '3.0.0',
-//     info: {
-//       title: 'Budgeting App API',
-//       version: '1.0.0',
-//       description: 'API documentation',
-//     },
-//     servers: [
-//       {
-//         url: 'http://localhost:3006',
-//       },
-//     ],
-//   },
-//   apis: ['./routes/*.js'], 
-// };
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Budgeting App API',
+      version: '1.0.0',
+      description: 'API documentation',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+    ],
+  },
+  apis: ['./routes/*.js'], 
+};
 
-// const swaggerSpec = swaggerJSDoc(swaggerOptions);
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerjsonFilePath));
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 app.listen(port, () => {
