@@ -49,9 +49,18 @@ const TransactionController = {
             
             const transactions = await Transaction.find({ account_id: account_id }).sort({ date: -1 });
             
-            res.status(200).json(transactions);
+            res.status(200).json({
+                status: 'success',
+                data: transactions,
+                message: 'Transactions successfully fetched'
+            });
         } catch (error) {
-            res.status(500).json({ message: "Error fetching transactions", error: error.message });
+            res.status(500).json({
+                status: 'failed',
+                data: [],
+                message: 'Error fetching transactions',
+                error: error.message
+            });
         }
     },
 
@@ -102,7 +111,7 @@ const TransactionController = {
             }
 
             // Find the linked account
-            const account = await Account.findOne({ account_id : transaction.account_id });
+            const account = await Account.findOne({ account_id :transaction.account_id });
             
             // If we delete an expense, we add the money back. If we delete income, we subtract it.
             if (account) { 

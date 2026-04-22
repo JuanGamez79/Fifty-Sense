@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 
 const budgetSchema = new mongoose.Schema({
-    budget_id: { type: String, default: () => crypto.randomUUID(), required: true },
+    budget_id: { type: String, required: true },
     category_id: { type: String, required: true },
     budget_name: { type: String, required: true },
     current_amount: { type: Number, required: true },

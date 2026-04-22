@@ -20,7 +20,7 @@ const accountController = {
     getSingleAccount: async (req, res) => {
         try{
             const { account_id } = req.params;
-            const account = await Account.findById({ _id: account_id, is_active: { $ne: false } });
+            const account = await Account.findById({ account_id: account_id, is_active: { $ne: false } });
             
             if (!account) {
                 return res.status(404).json({
@@ -71,7 +71,7 @@ const accountController = {
             const { account_id } = req.params;
     
             const updatedAccount = await Account.findOneAndUpdate(
-                { _id: account_id, is_active: { $ne: false } },
+                { account_id: account_id, is_active: { $ne: false } },
                 req.body,
                 { new: true, runValidators: true }
             );
@@ -104,7 +104,7 @@ const accountController = {
         try{
             const { account_id } = req.params;
             const deletedAccount = await Account.findOneAndUpdate(
-                { _id: account_id, is_active: { $ne: false } },
+                { account_id: account_id, is_active: { $ne: false } },
                 { is_active: false },
                 { new: true }
             );

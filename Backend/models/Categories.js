@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 
 const categorySchema = new mongoose.Schema({
-    category_id: { type: String, default: () => crypto.randomUUID(), required: true },
-    user_id: { type: String, required: true },
-    category_name: { type: String, required: true },
-    is_active: { type: Boolean, required: true }
+    category_id: { type: String },
+    user_id: { type: String },
+    category_name: { type: String },
+    is_active: { type: Boolean }
 });
 
 const Categories = mongoose.model("Categories", categorySchema);
