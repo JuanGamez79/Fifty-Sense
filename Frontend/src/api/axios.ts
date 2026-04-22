@@ -1,6 +1,12 @@
+<<<<<<< Updated upstream
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3006';
 // Base API client. All requests go through apiRequest which handles
 // headers, auth tokens, JSON parsing, and errors in one place.
+=======
+// src/api/axios.ts
+// src/api/axios.ts
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3006';
+>>>>>>> Stashed changes
 
 type RequestOptions = {
   method?: string;

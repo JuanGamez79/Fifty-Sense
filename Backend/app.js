@@ -53,12 +53,26 @@ mongoose.connect(uri)
 //   apis: ['./routes/*.js'], 
 // };
 
+<<<<<<< Updated upstream
 // const swaggerSpec = swaggerJSDoc(swaggerOptions);
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerjsonFilePath));
 
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+=======
+// Error handler middleware - ensure all errors return JSON
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error',
+  });
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
+>>>>>>> Stashed changes
   console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
 });
 

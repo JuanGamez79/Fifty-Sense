@@ -12,7 +12,8 @@ export default function Register() {
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({
-    fullName: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -30,22 +31,13 @@ export default function Register() {
     }));
   }
 
-  function splitName(fullName: string) {
-    const trimmed = fullName.trim();
-    const parts = trimmed.split(/\s+/);
-
-    return {
-      first_name: parts[0] || '',
-      last_name: parts.slice(1).join(' ') || '',
-    };
-  }
-
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMessage('');
 
     if (
-      !formData.fullName ||
+      !formData.first_name ||
+      !formData.last_name ||
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword
@@ -59,19 +51,12 @@ export default function Register() {
       return;
     }
 
-    const { first_name, last_name } = splitName(formData.fullName);
-
-    if (!first_name || !last_name) {
-      setErrorMessage('Please enter both first and last name.');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
 
       const { token, user } = await registerUser({
-        first_name,
-        last_name,
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
         email: formData.email,
         password: formData.password,
       });
@@ -111,10 +96,21 @@ export default function Register() {
           <div className="input-wrapper">
             <img className="user" src="/images/fullName.png" alt="User icon" />
             <input
-              name="fullName"
+              name="first_name"
               type="text"
-              placeholder="Full Name"
-              value={formData.fullName}
+              placeholder="First Name"
+              value={formData.first_name}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="input-wrapper">
+            <img className="user" src="/images/fullName.png" alt="User icon" />
+            <input
+              name="last_name"
+              type="text"
+              placeholder="Last Name"
+              value={formData.last_name}
               onChange={handleChange}
             />
           </div>
