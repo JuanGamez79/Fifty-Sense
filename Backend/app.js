@@ -54,49 +54,6 @@ mongoose.connect(uri)
   .then(() => console.log("Successfully connected to MongoDB!"))
   .catch(err => console.error("MongoDB connection error:", err));
 
-
-// 404 handler - return JSON not HTML
-app.use((req, res) => {
-  res.status(404).json({
-    status: 'error',
-    message: 'Endpoint not found',
-    path: req.path,
-  });
-});
-
-// Error handler middleware - ensure all errors return JSON
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    status: 'error',
-    message: err.message || 'Internal Server Error',
-  });
-});
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-  console.log(`Swagger docs available at http://backend.unearned.duckdns.org/api-docs`);
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Budgeting App API',
-      version: '1.0.0',
-      description: 'API documentation',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-      },
-    ],
-  },
-  apis: ['./routes/*.js'], 
-};
-
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
   console.log(`Swagger docs available at http://localhost:${port}/api-docs`);
