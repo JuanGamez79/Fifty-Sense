@@ -1,5 +1,6 @@
 const Transaction = require("../models/Transactions");
 const Account = require("../models/Accounts");
+const Budget = require("../models/Budgets");
 
 const TransactionController = {
     createTransaction: async (req, res) => {
@@ -29,17 +30,34 @@ const TransactionController = {
                 account.balance -= Number(amount);
             }
 
+            let budgetUpdateInfo = null;
+            if (category_id && type === "expense") {
+            const budget = await Budget.findOne({ category_id: category_id, is_active: true });
+            
+            if (budget) {
+                // Increase the amount spent
+                budget.amount_spent = (budget.amount_spent || 0) + Number(amount);
+                await budget.save();
+                budgetUpdateInfo = budget.amount_spent;
+            }
+        }
 
             const savedTransaction = await newTransaction.save();
             await account.save();
 
             res.status(201).json({
-                message: "Transaction created and balance updated successfully",
-                transaction: savedTransaction,
-                new_balance: account.balance
+                status: 'success',
+                data: savedTransaction,
+                message: "Transaction created successfully",
+                new_account_balance: account.balance,
+                new_budget_spent: budgetUpdateInfo
             });
         } catch (error) {
-            res.status(500).json({ message: "Error creating transaction", error: error.message });
+            res.status(500).json({ 
+                status: 'failed', 
+                data: [], 
+                message: `Error creating transaction: ${error.message}` 
+            });        
         }
     },
 
@@ -74,20 +92,73 @@ const TransactionController = {
     updateTransaction: async (req, res) => {
         try {
             const { transaction_id } = req.params;
+            const updates = req.body;
             
+            const oldTransaction = await Transaction.findOne({ transaction_id: transaction_id, is_active: { $ne: false } });
+            if (!oldTransaction) {
+                return res.status(404).json({ 
+                    status: 'failed', 
+                    data: [], 
+                    message: "Transaction not found" 
+                });
+            }
+
+            const newType = updates.type || oldTransaction.type;
+            const newAmount = updates.amount !== undefined ? Number(updates.amount) : oldTransaction.amount;
+            const newCategoryId = updates.category_id || oldTransaction.category_id;
+
+            // Adjust Account if amount or type changed
+            if (updates.amount !== undefined || updates.type !== undefined) {
+                const account = await Account.findOne({ account_id: oldTransaction.account_id });
+                if (account) {
+                    if (oldTransaction.type === "expense") account.balance += oldTransaction.amount;
+                    if (oldTransaction.type === "income") account.balance -= oldTransaction.amount;
+
+                    if (newType === "expense") account.balance -= newAmount;
+                    if (newType === "income") account.balance += newAmount;
+
+                    await account.save();
+                }
+            }
+
+            // Adjust Budget if amount, type, or category changed
+            if (updates.amount !== undefined || updates.type !== undefined || updates.category_id !== undefined) {
+                
+                if (oldTransaction.category_id && oldTransaction.type === "expense") {
+                    const oldBudget = await Budget.findOne({ category_id: oldTransaction.category_id, is_active: true });
+                    if (oldBudget) {
+                        oldBudget.amount_spent -= oldTransaction.amount;
+                        await oldBudget.save();
+                    }
+                }
+
+                if (newCategoryId && newType === "expense") {
+                    const newBudget = await Budget.findOne({ category_id: newCategoryId, is_active: true });
+                    if (newBudget) {
+                        newBudget.amount_spent = (newBudget.amount_spent || 0) + newAmount;
+                        await newBudget.save();
+                    }
+                }
+            }
+
+            // Update the transaction document
             const updatedTransaction = await Transaction.findOneAndUpdate(
                 { transaction_id: transaction_id }, 
-                req.body, 
+                updates, 
                 { new: true, runValidators: true } 
             );
 
-            if (!updatedTransaction) {
-                return res.status(404).json({ message: "Transaction not found" });
-            }
-
-            res.status(200).json(updatedTransaction);
+            res.status(200).json({
+                status: 'success',
+                data: updatedTransaction,
+                message: "Transaction and related balances updated successfully"
+            });
         } catch (error) {
-            res.status(500).json({ message: "Error updating transaction", error: error.message });
+            res.status(500).json({ 
+                status: 'failed', 
+                data: [], 
+                message: `Error updating transaction: ${error.message}` 
+            });        
         }
     },
 
@@ -96,9 +167,13 @@ const TransactionController = {
             const { transaction_id } = req.params;
             
             // Find the transaction before deleting it so we know the amount and type
-            const transaction = await Transaction.findOne({ transaction_id: transaction_id, is_active: { $ne: false } });
+            const transaction = await Transaction.findOne({ transaction_id: transaction_id, is_active: true });
             if (!transaction) {
-                return res.status(404).json({ message: "Transaction not found" });
+                return res.status(404).json({ 
+                    status: 'failed', 
+                    data: [], 
+                    message: "Transaction not found" 
+                });
             }
 
             // Find the linked account
@@ -117,6 +192,16 @@ const TransactionController = {
                 await account.save();
             }
 
+            // Update the budget if the transaction was an expense
+            let budgetUpdateInfo = null;
+            if (transaction.category_id && transaction.type === "expense") {
+                const budget = await Budget.findOne({ category_id: transaction.category_id, is_active: true });
+                if (budget) {
+                    budget.amount_spent -= transaction.amount; // Remove the spent money from the budget
+                    await budget.save();
+                    budgetUpdateInfo = budget.amount_spent;
+                }
+            }
             // Delete transaction
             await Transaction.findOneAndDelete(
                 { transaction_id: transaction_id },
@@ -125,12 +210,19 @@ const TransactionController = {
             );
 
             res.status(200).json({ 
-                message: "Transaction deleted and balance adjusted",
-                new_balance: account ? account.balance : null
-            });
+            status: 'success',
+            data: [],
+            message: "Transaction deleted, account and budget adjusted",
+            new_account_balance: account ? account.balance : null,
+            new_budget_spent: budgetUpdateInfo
+        });
 
         } catch (error) {
-            res.status(500).json({ message: "Error deleting transaction", error: error.message });
+            res.status(500).json({ 
+                status: 'failed', 
+                data: [], 
+                message: `Error deleting transaction: ${error.message}` 
+            });        
         }
     },
 

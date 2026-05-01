@@ -28,8 +28,8 @@ app.use('/api/transactions', transactionRoutes);
 const categoryRoutes = require('./routes/categoryRoutes');
 app.use('/api/categories', categoryRoutes);
 
-// const budgetRoutes = require('./routes/budgetRoutes');
-// app.use('/api/budgets', budgetRoutes);
+const budgetRoutes = require('./routes/budgetRoutes');
+app.use('/api/budgets', budgetRoutes);
 
 const goalRoutes = require('./routes/goalRoutes');
 app.use('/api/goals', goalRoutes);
@@ -46,28 +46,6 @@ const port = process.env.PORT || 3006;
 mongoose.connect(uri)
   .then(() => console.log("Successfully connected to MongoDB!"))
   .catch(err => console.error("MongoDB connection error:", err));
-
-
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Budgeting App API',
-      version: '1.0.0',
-      description: 'API documentation',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000',
-      },
-    ],
-  },
-  apis: ['./routes/*.js'], 
-};
-
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

@@ -23,12 +23,12 @@ router.get('/:goal_id', goalController.getSingleGoal);
 // Use this to populate the user's dashboard or goals list.
 router.get('/user/:user_id', goalController.getUserGoals);
 
-// PUT /:goal_id
+// PATCH /:goal_id
 // Updates an existing active goal's details.
 // Frontend sends: goal_id in the URL path; updated fields in the body.
 // Success response includes the updated goal object.
 // Use this when the user updates a target amount, deadline, or renames the goal.
-router.put('/:goal_id', goalController.updateGoal);
+router.patch('/:goal_id', goalController.updateGoal);
 
 // DELETE /:goal_id
 // Soft deletes a specific goal by marking it inactive.

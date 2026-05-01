@@ -4,9 +4,8 @@ const mongoose = require('mongoose');
 const budgetSchema = new mongoose.Schema({
     budget_id: { type: String, default: () => crypto.randomUUID(), required: true },
     category_id: { type: String, required: true },
-    budget_name: { type: String, required: true },
-    current_amount: { type: Number, required: true },
-    amount_remaining: { type: Number, required: true },
+    budgeted_amount: { type: Number, required: true }, // The Upper Limit of the Budget
+    amount_spent: { type: Number, required: true }, // (Spent $350 of $500)
     date_created: { type: Date, default: Date.now },
     is_active: { type: Boolean, default: true }
 });
