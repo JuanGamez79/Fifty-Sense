@@ -32,8 +32,9 @@ const CategoryController = {
         try {
             const { category_id } = req.params;
 
-            const category = await Category.findOne({ category_id : category_id });
+            const category = await Category.findById(category_id);
 
+            // Case: ID is valid but no document exists
             if (!category) {
                 return res.status(404).json({
                     status: 'error',
@@ -80,8 +81,8 @@ const CategoryController = {
         try {
             const { category_id } = req.params;
 
-            const updatedCategory = await Category.findOneAndUpdate(
-                { category_id: category_id },
+            const updatedCategory = await Category.findByIdAndUpdate(
+                category_id,
                 req.body, 
                 { new: true, runValidators: true }
             );
@@ -114,7 +115,7 @@ const CategoryController = {
 
             // Soft-delete
             const deletedCategory = await Category.findByIdAndUpdate(
-                { category_id: category_id },
+                category_id,
                 { is_active: false },
                 { new: true }
             );

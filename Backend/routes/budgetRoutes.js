@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const BudgetController = require('../controllers/budgetController.js');
+const authenticateToken = require('../middleware/authMiddleware');
 
 
 // POST /api/budgets/create

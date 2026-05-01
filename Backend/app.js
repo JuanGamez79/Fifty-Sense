@@ -4,16 +4,23 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const corsOptions = {
-    origin: 'http://localhost:5173', 
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://192.168.1.11:5173', 'https://fiftysense.unearned.duckdns.org'], 
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
     optionsSuccessStatus: 200 
-};
+};  
 
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsOptions));
 app.disable("x-powered-by");
-app.use(express.urlencoded({ extended: false }));
+app.set('trust proxy', 1);
+
+// Root route for health checks
+app.get('/', (req, res) => {
+  res.json({ status: 'OK', message: 'Budgeting App API is running' });
+});
 
 
 const userRoutes = require('./routes/userRoutes');

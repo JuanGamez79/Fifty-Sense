@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 
 // Settings info should be saved in Users if required

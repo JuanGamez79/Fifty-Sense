@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 
 const budgetSchema = new mongoose.Schema({
-    budget_id: { type: String, default: () => crypto.randomUUID(), required: true },
+    budget_id: { type: String, required: true },
     category_id: { type: String, required: true },
     budgeted_amount: { type: Number, required: true }, // The Upper Limit of the Budget
     amount_spent: { type: Number, required: true }, // (Spent $350 of $500)

@@ -22,21 +22,21 @@
   --primary-color: #6D28D9;
   --secondary-color: #1a1a1a;
   --background-color: #000;
-  --background-gradient: linear-gradient(180deg, #07080F 0%, #07080F 100%);
+
   --transition-fast: 0.2s ease-in-out;
 }
 
 html, body, #root {
-  
   width: 100%;
   height: 100%;
   font-family: var(--font-sans);
   line-height: var(--line-height);
   font-weight: var(--font-weight-normal);
-  background: var(--background-gradient);
   color: #fff;
+  background-color: #0A0F2B;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
 }
 
 /* ==========================

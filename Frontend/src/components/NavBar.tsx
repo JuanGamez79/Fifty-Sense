@@ -19,7 +19,7 @@ const navLinks = [
 
 export default function NavBar() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   // Clears auth state and redirects to the splash page.
   function handleLogout() {
@@ -29,7 +29,10 @@ export default function NavBar() {
 
   return (
     <nav className="nav-bar">
-      <Link to="/dashboard" className="brand">My Budget</Link>
+    <Link to="/dashboard" className="brand">
+      <span className="brand-white">Fifty</span>
+      <span className="brand-green">Sense</span>
+    </Link>
 
       <div className="nav-links">
         {navLinks.map(({ to, label }) => (
@@ -44,9 +47,9 @@ export default function NavBar() {
       </div>
 
       <div className="nav-actions">
-        {user && (
-          <span className="nav-user">{user.first_name}</span>
-        )}
+        <Link to="/account" className="account-button">
+          Account
+        </Link>
 
         <button type="button" className="logout-button" onClick={handleLogout}>
           Log Out

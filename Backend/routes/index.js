@@ -16,4 +16,4 @@ const Router = (server) => {
     })
 };
 
-module.exports(Router);
+module.exports = Router;

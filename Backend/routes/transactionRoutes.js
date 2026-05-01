@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const TransactionController = require('../controllers/transactionController');
+const authenticateToken = require('../middleware/authMiddleware');
 
 // POST /api/transactions/create
 // Creates a new transaction and automatically updates the linked account's balance.

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const crypto = require('crypto'); // ← add this
 
 const accountSchema = new mongoose.Schema({
     account_id: { type: String, default: () => crypto.randomUUID(), required: true },
