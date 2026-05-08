@@ -4,15 +4,13 @@ import '../style/Register.css';
 import { useAuth } from '../api/useAuth';
 import { registerUser } from '../api/auth';
 
-// Registration page. Validates the form, splits the full name, and creates a new account.
-// Redirects to dashboard on success.
-
 export default function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -30,22 +28,13 @@ export default function Register() {
     }));
   }
 
-  function splitName(fullName: string) {
-    const trimmed = fullName.trim();
-    const parts = trimmed.split(/\s+/);
-
-    return {
-      first_name: parts[0] || '',
-      last_name: parts.slice(1).join(' ') || '',
-    };
-  }
-
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMessage('');
 
     if (
-      !formData.fullName ||
+      !formData.firstName ||
+      !formData.lastName ||
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword
@@ -59,19 +48,12 @@ export default function Register() {
       return;
     }
 
-    const { first_name, last_name } = splitName(formData.fullName);
-
-    if (!first_name || !last_name) {
-      setErrorMessage('Please enter both first and last name.');
-      return;
-    }
-
     try {
       setIsSubmitting(true);
 
       const { token, user } = await registerUser({
-        first_name,
-        last_name,
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
         email: formData.email,
         password: formData.password,
       });
@@ -108,15 +90,28 @@ export default function Register() {
         <h1>Get Started</h1>
 
         <form onSubmit={handleSubmit} style={{ display: 'contents' }}>
-          <div className="input-wrapper">
-            <img className="user" src="/images/fullName.png" alt="User icon" />
-            <input
-              name="fullName"
-              type="text"
-              placeholder="Full Name"
-              value={formData.fullName}
-              onChange={handleChange}
-            />
+          {/* Name Row */}
+          <div className="name-row">
+            <div className="input-wrapper name-input">
+              <img className="user" src="/images/fullName.png" alt="User icon" />
+              <input
+                name="firstName"
+                type="text"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="input-wrapper name-input no-icon">
+              <input
+                name="lastName"
+                type="text"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           <div className="input-wrapper">
@@ -152,7 +147,7 @@ export default function Register() {
             />
           </div>
 
-          <p>
+          <p className="terms-text">
             By signing up, you agree to the <a href="#">Terms of Service</a> and{' '}
             <a href="#">Privacy Policy</a>.
           </p>

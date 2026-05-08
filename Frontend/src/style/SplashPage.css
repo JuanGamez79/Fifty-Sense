@@ -12,7 +12,7 @@ html, body{
   justify-content: flex-start; /* start from top */
   align-items: center;         /* center horizontally */
   padding-top: 2%;           /* pushes content slightly down */
-  height: 100vh;
+  height: 120vh;
   background-color: #000000;
   font-size: 2rem;
   animation: fadeIn 1s ease-in-out;

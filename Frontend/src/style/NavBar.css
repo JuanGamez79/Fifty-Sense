@@ -1,44 +1,43 @@
 .nav-bar {
   display: flex;
   flex-direction: column;
-  width: clamp(120px, 12vw, 200px);  /* 👈 scales but has min/max */
+  width: clamp(160px, 14vw, 220px);
   height: 100vh;
   background: #0B1022;
   color: white;
   padding: 20px;
   box-shadow: 2px 0 6px #141B3A;
   position: fixed;
-  z-index: 10;                        /* 👈 above oval */
+  z-index: 10;
+  /* Set font here so all children inherit it */
+  font-family: 'Aldrich', sans-serif; 
 }
 
 .brand {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: bold;
   color: white;
   text-decoration: none;
   margin-bottom: 40px;
   text-align: center;
 }
+
 .brand-white {
   color: white;
-  font-family: Aldrich;
   font-weight: 400;
-  font-style: Regular;
-
   line-height: 100%;
   letter-spacing: 0%;
   text-align: center;
-
 }
 
 .brand-green {
   color: #13AC24;
-  font-family: Aldrich;
   font-weight: 400;
-  font-size: clamp(16px, 2vw, 25px);  /* 👈 scales with screen */
+  font-size: 2rem;
   line-height: 100%;
   text-align: center;
 }
+
 .nav-links {
   display: flex;
   flex-direction: column;
@@ -51,9 +50,9 @@
   text-decoration: none;
   padding: 10px 15px;
   transition: all 0.2s;
-  font-family: Roboto;
+  /* Removed Roboto to keep Aldrich */
   font-weight: 400;
-  font-size: clamp(14px, 1.5vw, 25px); /* 👈 scales with screen */
+  font-size: clamp(14px, 1.5vw, 25px);
   line-height: 100%;
   text-align: center;
 }
@@ -63,7 +62,6 @@
 }
 
 .nav-links a.active {
-
   font-weight: bold;
   border-style: solid;
   border-color: #232B55;
@@ -110,4 +108,30 @@
 
 .nav-user {
   font-weight: 600;
+}
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  /* Increased horizontal padding from 15px to 20px */
+  padding: 10px 2px; 
+  transition: all 0.2s;
+  font-weight: 400;
+  font-size: clamp(14px, 1.5vw, 25px);
+  line-height: 100%;
+  text-align: center;
+  /* Added a transparent border by default so the layout doesn't "jump" when active */
+  border: 2px solid transparent;
+  border-radius: 4px; /* Optional: adds slight rounding to the rectangle corners */
+}
+
+.nav-links a:hover {
+  background: #33334d;
+}
+
+.nav-links a.active {
+  font-weight: bold;
+  /* Defined a specific width (2px) and color for the rectangle */
+  border-color: #232B55;
+  /* If you want the background to highlight the rectangle area too: */
+  background: rgba(35, 43, 85, 0.3); 
 }

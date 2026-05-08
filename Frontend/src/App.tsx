@@ -5,16 +5,19 @@ import PublicRoute from './components/PublicRoute';
 
 import SplashPage from './pages/SplashPage';
 import Dashboard from './pages/Dashboard';
-import Transactions from './pages/Transactions';
+import Transactions from './pages/Transactions/Transactions';
 import Budgets from './pages/Budgets';
-import Goals from './pages/Goals';
+import Goals from './pages/Goals/Goals';
 import Calendar from './pages/Calendar';
 import Analytics from './pages/Analytics';
 import AIInsights from './pages/AIInsights';
 import MonthlyRecaps from './pages/MonthlyRecaps';
 import Account from './pages/Account';
+import Settings from './pages/Settings';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Root route configuration. Defines public, protected, and fallback routes.
 // PublicRoute redirects authenticated users away from login/register.
@@ -28,6 +31,8 @@ export default function App() {
         <Route path="/" element={<SplashPage />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
+        <Route path="forgotpassword" element={<ForgotPassword />} />
+        <Route path="resetpassword" element={<ResetPassword />} />
       </Route>
 
       {/* protected/content routes wrapped with layout/nav */}
@@ -35,6 +40,7 @@ export default function App() {
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="Account" element={<Account />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="budgets" element={<Budgets />} />
           <Route path="goals" element={<Goals />} />

@@ -2,9 +2,9 @@ const Account = require('../models/Accounts');
 
 const accountController = {
     createAccount: async (req, res) => {
-        try{
+        try {
             const { user_id, account_name, balance } = req.body;
-    
+
             const newAccount = new Account({
                 user_id,
                 account_name,
@@ -13,50 +13,53 @@ const accountController = {
 
             const savedAccount = await newAccount.save();
             res.status(201).send(savedAccount);
-        } catch(error) {
-            res.status(500).json({ message: "Error creating account", error: error.message });        }
+        } catch (error) {
+            res.status(500).json({ message: "Error creating account", error: error.message });
+        }
     },
 
+    // Fixed: findById only accepts a raw _id value, not a query object.
+    // Since account_id is a custom UUID field (not _id), use findOne instead.
     getSingleAccount: async (req, res) => {
-        try{
+        try {
             const { account_id } = req.params;
-            const account = await Account.findById({ account_id: account_id, is_active: { $ne: false } });
-            
+            const account = await Account.findOne({ account_id: account_id, is_active: { $ne: false } });
+
             if (!account) {
                 return res.status(404).json({
                     status: 'failed',
                     data: [],
                     message: 'Account not found'
-                });            
+                });
             }
-            
+
             return res.status(200).json({
                 status: 'success',
                 data: [account],
                 message: 'Account successfully fetched'
             });
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({
                 status: 'failed',
                 data: [],
                 message: 'Error fetching account',
                 error: error.message
-            });        
+            });
         }
     },
 
     getUserAccounts: async (req, res) => {
-        try{
+        try {
             const { user_id } = req.params;
-            
-            const accounts = await Account.find({ user_id: user_id, is_active: { $ne: false } });            
-            
+
+            const accounts = await Account.find({ user_id: user_id, is_active: { $ne: false } });
+
             return res.status(200).json({
                 status: 'success',
-                data: accounts, 
+                data: accounts,
                 message: 'Accounts successfully fetched'
             });
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({
                 status: 'failed',
                 data: [],
@@ -67,9 +70,9 @@ const accountController = {
     },
 
     updateAccount: async (req, res) => {
-        try{
+        try {
             const { account_id } = req.params;
-    
+
             const updatedAccount = await Account.findOneAndUpdate(
                 { account_id: account_id, is_active: { $ne: false } },
                 req.body,
@@ -77,19 +80,19 @@ const accountController = {
             );
 
             if (!updatedAccount) {
-               return res.status(404).json({
+                return res.status(404).json({
                     status: 'failed',
                     data: [],
                     message: 'Account not found'
                 });
             }
-            
+
             return res.status(200).json({
                 status: 'success',
                 data: [updatedAccount],
                 message: 'Account successfully updated'
             });
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({
                 status: 'failed',
                 data: [],
@@ -97,32 +100,31 @@ const accountController = {
                 error: error.message
             });
         }
-           
     },
-    
+
     deleteAccount: async (req, res) => {
-        try{
+        try {
             const { account_id } = req.params;
             const deletedAccount = await Account.findOneAndUpdate(
                 { account_id: account_id, is_active: { $ne: false } },
                 { is_active: false },
                 { new: true }
             );
-            
+
             if (!deletedAccount) {
-               return res.status(404).json({
+                return res.status(404).json({
                     status: 'failed',
                     data: [],
                     message: 'Account not found or already deleted'
                 });
             }
-            
+
             return res.status(200).json({
                 status: 'success',
                 data: [],
                 message: 'Account deleted successfully'
             });
-        } catch(error) {
+        } catch (error) {
             return res.status(500).json({
                 status: 'failed',
                 data: [],
@@ -131,7 +133,6 @@ const accountController = {
             });
         }
     },
-
-}
+};
 
 module.exports = accountController;

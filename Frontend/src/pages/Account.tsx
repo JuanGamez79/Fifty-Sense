@@ -32,39 +32,29 @@ function unwrapArray<T>(raw: any): T[] {
   return [];
 }
 
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("token");
-  return token
-    ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-    : { "Content-Type": "application/json" };
-}
-
 const fmtBalance = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Math.abs(n));
 
 const fmtAmount = (n: number) =>
-  (n >= 0 ? "+" : "−") + new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD"
-  }).format(Math.abs(n));
+  (n >= 0 ? "+" : "−") +
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Math.abs(n));
 
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-/** Pick icon + background colour based on account name */
 function accountStyle(name: string): { icon: string; bg: string; color: string } {
   const n = name.toLowerCase();
-  if (n.includes("check"))   return { icon: "🏦", bg: "#1a3a1f", color: "#13AC24" };
-  if (n.includes("saving"))  return { icon: "💰", bg: "#1a2a3a", color: "#3D8EFF" };
-  if (n.includes("credit"))  return { icon: "💳", bg: "#2a1e2a", color: "#a855f7" };
+  if (n.includes("check"))  return { icon: "🏦", bg: "#1a3a1f", color: "#13AC24" };
+  if (n.includes("saving")) return { icon: "💰", bg: "#1a2a3a", color: "#3D8EFF" };
+  if (n.includes("credit")) return { icon: "💳", bg: "#2a1e2a", color: "#a855f7" };
   if (n.includes("crypto") || n.includes("btc") || n.includes("eth"))
     return { icon: "₿", bg: "#2a2a1e", color: "#f59e0b" };
   if (n.includes("invest") || n.includes("stock") || n.includes("brokerage"))
     return { icon: "📈", bg: "#1a2a1a", color: "#13AC24" };
-  if (n.includes("cash"))    return { icon: "💵", bg: "#1e2a1e", color: "#13AC24" };
+  if (n.includes("cash")) return { icon: "💵", bg: "#1e2a1e", color: "#13AC24" };
   return { icon: "🏛️", bg: "#1e1e2a", color: "#7a8ab0" };
 }
 
-/** Derive a category label from category_id or description */
 function categoryLabel(tx: Transaction): string {
   if (tx.category_id) return tx.category_id;
   const d = (tx.description ?? "").toLowerCase();
@@ -78,14 +68,14 @@ function categoryLabel(tx: Transaction): string {
 
 function txIcon(tx: Transaction): { icon: string; bg: string } {
   const d = (tx.description ?? "").toLowerCase();
-  if (d.includes("amazon"))    return { icon: "📦", bg: "#2a2a1e" };
+  if (d.includes("amazon"))   return { icon: "📦", bg: "#2a2a1e" };
   if (d.includes("starbucks") || d.includes("coffee")) return { icon: "☕", bg: "#2a2a1e" };
   if (d.includes("trader") || d.includes("groceri") || d.includes("whole")) return { icon: "🛒", bg: "#1e2a1e" };
   if (d.includes("paycheck") || d.includes("salary")) return { icon: "💳", bg: "#1e2a1e" };
-  if (d.includes("netflix"))   return { icon: "🎬", bg: "#2a1e1e" };
-  if (d.includes("spotify"))   return { icon: "🎵", bg: "#1e2a1e" };
-  if (d.includes("uber"))      return { icon: "🚗", bg: "#1e1e2a" };
-  if (tx.type === "income")    return { icon: "⊕", bg: "#1a3a1f" };
+  if (d.includes("netflix")) return { icon: "🎬", bg: "#2a1e1e" };
+  if (d.includes("spotify")) return { icon: "🎵", bg: "#1e2a1e" };
+  if (d.includes("uber"))    return { icon: "🚗", bg: "#1e1e2a" };
+  if (tx.type === "income")  return { icon: "⊕", bg: "#1a3a1f" };
   return { icon: "⊖", bg: "#2a1e1e" };
 }
 
@@ -111,6 +101,7 @@ function CreateAccountModal({
     setSaving(true);
     setErr(null);
     try {
+      // → accountController.createAccount  POST /api/accounts/create
       await apiRequest("/api/accounts/create", {
         token,
         method: "POST",
@@ -136,7 +127,6 @@ function CreateAccountModal({
           <h2>New Account</h2>
           <button className="ac-modal-close" onClick={onClose}>✕</button>
         </div>
-
         <div className="form-group">
           <label>Account Name</label>
           <input
@@ -147,7 +137,6 @@ function CreateAccountModal({
             autoFocus
           />
         </div>
-
         <div className="form-group">
           <label>Starting Balance ($)</label>
           <input
@@ -158,9 +147,7 @@ function CreateAccountModal({
             step="0.01"
           />
         </div>
-
         {err && <p className="ac-modal-error">{err}</p>}
-
         <div className="form-actions">
           <button className="btn-save" onClick={handleCreate} disabled={saving}>
             {saving ? "Creating…" : "Create Account"}
@@ -196,13 +183,11 @@ function EditAccountModal({
     setSaving(true);
     setErr(null);
     try {
+      // → accountController.updateAccount  PUT /api/accounts/:account_id
       await apiRequest(`/api/accounts/${acc.account_id}`, {
         token,
         method: "PUT",
-        body: {
-          account_name: name.trim(),
-          balance: parsedBalance,
-        },
+        body: { account_name: name.trim(), balance: parsedBalance },
       });
       onUpdated();
       onClose();
@@ -220,7 +205,6 @@ function EditAccountModal({
           <h2>Edit Account</h2>
           <button className="ac-modal-close" onClick={onClose}>✕</button>
         </div>
-
         <div className="form-group">
           <label>Account Name</label>
           <input
@@ -231,7 +215,6 @@ function EditAccountModal({
             autoFocus
           />
         </div>
-
         <div className="form-group">
           <label>Balance ($)</label>
           <input
@@ -242,9 +225,7 @@ function EditAccountModal({
             step="0.01"
           />
         </div>
-
         {err && <p className="ac-modal-error">{err}</p>}
-
         <div className="form-actions">
           <button className="btn-save" onClick={handleUpdate} disabled={saving}>
             {saving ? "Saving…" : "Save Changes"}
@@ -266,13 +247,13 @@ function AccountCard({
   onDelete: (id: string) => void;
   onEdit: (acc: AccountWithTx) => void;
 }) {
-  const style  = accountStyle(acc.account_name);
-  const income = acc.transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
+  const style   = accountStyle(acc.account_name);
+  const income  = acc.transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
   const expense = acc.transactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
-  const total  = income + expense || 1;
-  const barPct = Math.min(100, Math.round((Math.max(income, expense) / total) * 100));
-  const recentTx = acc.transactions.slice(0, 3);
-  const isPositive = acc.balance >= 0;
+  const total   = income + expense || 1;
+  const barPct  = Math.min(100, Math.round((Math.max(income, expense) / total) * 100));
+  const recentTx    = acc.transactions.slice(0, 3);
+  const isPositive  = acc.balance >= 0;
 
   return (
     <div className="acct-card">
@@ -311,7 +292,7 @@ function AccountCard({
                   <div className="tx-name">
                     {tx.description || (tx.type === "income" ? "Income" : "Expense")}
                   </div>
-                  <div className="tx-cat">{categoryLabel(tx)}</div>
+                  <div className="tx-cat"></div>
                 </div>
                 <div className="tx-right">
                   <div className={`tx-amount ${tx.type === "income" ? "positive" : "negative"}`}>
@@ -325,20 +306,11 @@ function AccountCard({
         )}
       </div>
 
-      {/* ── Card action buttons ── */}
       <div className="acct-card-actions">
-        <button
-          className="ac-edit-acct"
-          onClick={() => onEdit(acc)}
-          title="Edit this account"
-        >
+        <button className="ac-edit-acct" onClick={() => onEdit(acc)} title="Edit this account">
           Edit
         </button>
-        <button
-          className="ac-delete-acct"
-          onClick={() => onDelete(acc.account_id)}
-          title="Delete this account"
-        >
+        <button className="ac-delete-acct" onClick={() => onDelete(acc.account_id)} title="Delete this account">
           Delete
         </button>
       </div>
@@ -351,26 +323,56 @@ export default function Account() {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [accounts, setAccounts]         = useState<AccountWithTx[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [showModal, setShowModal]       = useState(false);
+  const [accounts, setAccounts]             = useState<AccountWithTx[]>([]);
+  const [loading, setLoading]               = useState(true);
+  const [showModal, setShowModal]           = useState(false);
   const [editingAccount, setEditingAccount] = useState<AccountWithTx | null>(null);
-  const [formData, setFormData]         = useState({
+
+  // Profile form state — pre-populated from auth user
+  const [formData, setFormData] = useState({
     first_name: user?.first_name ?? "",
     last_name:  user?.last_name  ?? "",
     email:      user?.email      ?? "",
   });
-  const [saving, setSaving]   = useState(false);
-  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [saving, setSaving]       = useState(false);
+  const [saveMsg, setSaveMsg]     = useState<string | null>(null);
+  const [saveErr, setSaveErr]     = useState<string | null>(null);
+  const [deleting, setDeleting]   = useState(false);
 
-  const userId = (user as any)?.user_id;
+  // ── IDs ─────────────────────────────────────────────────────────────────────
+  // user_id  → numeric/custom ID used for account lookups
+  // mongo_id → MongoDB _id used for user-level mutations (deleteUser, getProfile)
+  const userId  = (user as any)?.user_id;
+  const mongoId = (user as any)?._id ?? (user as any)?.mongo_id;
 
-  // ── Fetch accounts + transactions ─────────────────────────────────────────
+  // ── Fetch fresh profile from server (UserController.getProfile) ───────────
+  useEffect(() => {
+    if (!mongoId) return;
+    (async () => {
+      try {
+        // → UserController.getProfile  GET /api/users/profile
+        const raw = await apiRequest<any>("/api/users/profile", { token });
+        const profileUser = Array.isArray(raw?.data) ? raw.data[0] : raw;
+        if (profileUser) {
+          setFormData({
+            first_name: profileUser.first_name ?? "",
+            last_name:  profileUser.last_name  ?? "",
+            email:      profileUser.email      ?? "",
+          });
+        }
+      } catch {
+        // Fall back to auth context values — already pre-populated above
+      }
+    })();
+  }, [mongoId, token]);
+
+  // ── Fetch accounts + their transactions ───────────────────────────────────
   const fetchAccounts = useCallback(async () => {
     if (!userId) { setLoading(false); return; }
     setLoading(true);
     try {
-      const raw = await apiRequest<any>(`/api/accounts/user/${userId}`, { token });
+      // → accountController.getUserAccounts  GET /api/accounts/user/:user_id
+      const raw  = await apiRequest<any>(`/api/accounts/user/${userId}`, { token });
       const accs: Account[] = unwrapArray<Account>(raw);
 
       const withTx: AccountWithTx[] = await Promise.all(
@@ -380,8 +382,9 @@ export default function Account() {
               `/api/transactions/account/${acc.account_id}`,
               { token }
             );
-            const txs = unwrapArray<Transaction>(txRaw)
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            const txs = unwrapArray<Transaction>(txRaw).sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
             return { ...acc, transactions: txs };
           } catch {
             return { ...acc, transactions: [] };
@@ -398,34 +401,50 @@ export default function Account() {
 
   useEffect(() => { fetchAccounts(); }, [fetchAccounts]);
 
-  // ── Delete account ────────────────────────────────────────────────────────
+  // ── Delete a single bank account (soft-delete via accountController) ───────
   const handleDeleteAccount = async (accountId: string) => {
     if (!confirm("Delete this account and all its transactions?")) return;
     try {
-      await apiRequest(`/api/accounts/delete/${accountId}`, {
-        token,
-        method: "DELETE",
-      });
+      // → accountController.deleteAccount  DELETE /api/accounts/delete/:account_id
+      await apiRequest(`/api/accounts/delete/${accountId}`, { token, method: "DELETE" });
       fetchAccounts();
     } catch (e: any) {
       alert(e?.message ?? "Failed to delete account.");
     }
   };
 
-  // ── Profile save ──────────────────────────────────────────────────────────
+  // ── Save profile changes (UserController.updateUser) ──────────────────────
+  // NOTE: You need to add an updateUser method to UserController:
+  //   updateUser: async (req, res) => { ... User.findByIdAndUpdate(req.params.id, req.body) ... }
+  // and register it as:  router.put('/:id', authenticateToken, UserController.updateUser);
   const handleSave = async () => {
+    if (!formData.first_name.trim() || !formData.last_name.trim()) {
+      setSaveErr("First and last name are required.");
+      return;
+    }
     setSaving(true);
     setSaveMsg(null);
+    setSaveErr(null);
     try {
-      console.log("Saving profile:", formData);
+      // → UserController.updateUser  PUT /api/users/:id  (add this to your controller)
+      await apiRequest(`/api/users/${mongoId}`, {
+        token,
+        method: "PUT",
+        body: {
+          first_name: formData.first_name.trim(),
+          last_name:  formData.last_name.trim(),
+        },
+      });
       setSaveMsg("Saved!");
       setTimeout(() => setSaveMsg(null), 2500);
+    } catch (e: any) {
+      setSaveErr(e?.message ?? "Failed to save profile.");
     } finally {
       setSaving(false);
     }
   };
 
-  // ── Derived totals ────────────────────────────────────────────────────────
+  // ── Derived totals ─────────────────────────────────────────────────────────
   const totalBalance = accounts.reduce((s, a) => s + Number(a.balance), 0);
   const allTx        = accounts.flatMap((a) => a.transactions);
   const totalIncome  = allTx.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
@@ -433,7 +452,7 @@ export default function Account() {
   const changePct    = totalIncome > 0
     ? (((totalIncome - totalExpense) / totalIncome) * 100).toFixed(1)
     : "0.0";
-  const changeUp     = Number(changePct) >= 0;
+  const changeUp = Number(changePct) >= 0;
 
   const initials = [user?.first_name?.[0], user?.last_name?.[0]].filter(Boolean).join("").toUpperCase() || "?";
   const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || "User";
@@ -452,15 +471,15 @@ export default function Account() {
           <div className="profile-meta">
             <div className="meta-row">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#8b949e" strokeWidth="1.5">
-                <rect x="1" y="3" width="14" height="10" rx="1.5"/>
-                <path d="M1 6l7 4 7-4"/>
+                <rect x="1" y="3" width="14" height="10" rx="1.5" />
+                <path d="M1 6l7 4 7-4" />
               </svg>
               {user?.email ?? "—"}
             </div>
             <div className="meta-row">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#8b949e" strokeWidth="1.5">
-                <rect x="2" y="7" width="12" height="8" rx="1"/>
-                <path d="M5 7V5a3 3 0 016 0v2"/>
+                <rect x="2" y="7" width="12" height="8" rx="1" />
+                <path d="M5 7V5a3 3 0 016 0v2" />
               </svg>
               ••••••••••
             </div>
@@ -471,7 +490,8 @@ export default function Account() {
             <div className="form-group">
               <label>First Name</label>
               <input
-                type="text" name="first_name"
+                type="text"
+                name="first_name"
                 value={formData.first_name}
                 onChange={(e) => setFormData((p) => ({ ...p, first_name: e.target.value }))}
                 placeholder="First name"
@@ -480,36 +500,54 @@ export default function Account() {
             <div className="form-group">
               <label>Last Name</label>
               <input
-                type="text" name="last_name"
+                type="text"
+                name="last_name"
                 value={formData.last_name}
                 onChange={(e) => setFormData((p) => ({ ...p, last_name: e.target.value }))}
                 placeholder="Last name"
               />
             </div>
             <div className="form-group">
+              {/* Email is read-only — not editable via the current controller */}
               <label>Email</label>
               <input type="email" value={formData.email} disabled />
             </div>
+
+            {saveErr && <p className="ac-modal-error">{saveErr}</p>}
 
             <div className="form-actions">
               <button className="btn-save" onClick={handleSave} disabled={saving}>
                 {saving ? "Saving…" : saveMsg ?? "Save Changes"}
               </button>
-              <button className="btn-cancel" onClick={() => setFormData({
-                first_name: user?.first_name ?? "",
-                last_name:  user?.last_name  ?? "",
-                email:      user?.email      ?? "",
-              })}>
+              <button
+                className="btn-cancel"
+                onClick={() => {
+                  setSaveErr(null);
+                  setSaveMsg(null);
+                  setFormData({
+                    first_name: user?.first_name ?? "",
+                    last_name:  user?.last_name  ?? "",
+                    email:      user?.email      ?? "",
+                  });
+                }}
+              >
                 Cancel
               </button>
             </div>
           </div>
 
-          <button className="btn-action" onClick={() => navigate("/settings")}>Settings</button>
-          <button className="btn-action" onClick={() => { logout?.(); navigate("/login"); }}>
+          <button className="btn-action" onClick={() => navigate("/settings")}>
+            Settings
+          </button>
+          <button
+            className="btn-action"
+            onClick={() => { logout?.(); navigate("/login"); }}
+          >
             Log Out
           </button>
-          <button className="btn-delete">Delete account</button>
+
+          {/* Delete user — calls UserController.deleteUser, then logs out */}
+
         </div>
 
         {/* ── Right: Balance + Account Cards ────────────────────────────── */}
@@ -519,19 +557,24 @@ export default function Account() {
           <div className="balance-card">
             <div>
               <div className="balance-amount">
-                {totalBalance < 0 ? "−" : ""}${Math.abs(totalBalance).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                {totalBalance < 0 ? "−" : ""}$
+                {Math.abs(totalBalance).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 <span className={`badge-up ${changeUp ? "" : "badge-down"}`}>
                   {changeUp ? "▲" : "▼"} {Math.abs(Number(changePct))}%
                 </span>
               </div>
               <div className="balance-pills">
-                <span className="pill green">⊕ {totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
-                <span className="pill red">⊖ {totalExpense.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+                <span className="pill green">
+                  ⊕ {totalIncome.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </span>
+                <span className="pill red">
+                  ⊖ {totalExpense.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </span>
               </div>
             </div>
             <button className="btn-create-account" onClick={() => setShowModal(true)}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M8 2v12M2 8h12"/>
+                <path d="M8 2v12M2 8h12" />
               </svg>
               Add Account
             </button>
@@ -548,7 +591,11 @@ export default function Account() {
               <span>🏦</span>
               <p>No accounts yet</p>
               <p className="ac-empty-sub">Create your first account to get started</p>
-              <button className="btn-save" style={{ width: "auto", padding: "10px 24px" }} onClick={() => setShowModal(true)}>
+              <button
+                className="btn-save"
+                style={{ width: "auto", padding: "10px 24px" }}
+                onClick={() => setShowModal(true)}
+              >
                 + Create Account
               </button>
             </div>
@@ -567,7 +614,7 @@ export default function Account() {
         </div>
       </div>
 
-      {/* ── Create Account Modal ─────────────────────────────────────────── */}
+      {/* ── Modals ──────────────────────────────────────────────────────────── */}
       {showModal && userId && (
         <CreateAccountModal
           userId={userId}
@@ -577,7 +624,6 @@ export default function Account() {
         />
       )}
 
-      {/* ── Edit Account Modal ───────────────────────────────────────────── */}
       {editingAccount && (
         <EditAccountModal
           acc={editingAccount}

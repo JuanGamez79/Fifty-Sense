@@ -17,6 +17,7 @@
   --sans:      'DM Sans', sans-serif;
   --r:         14px;
   --r-sm:      8px;
+  
 }
 
 /* ── Layout ───────────────────────────────────────────────────────────────── */
@@ -24,7 +25,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 32px 36px;
+  padding: 32px 36px 8px;
   min-height: 100vh;
   width: calc(100% - clamp(120px, 12vw, 200px));
   margin-left: clamp(120px, 12vw, 200px);
@@ -32,28 +33,25 @@
   background: var(--bg);
   font-family: var(--sans);
   color: var(--text-1);
+  
   position: relative;
   overflow: hidden;
 }
 
 /* Ambient glows */
-.fs-glow {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-}
+
 .fs-glow--purple {
-  width: 900px; height: 900px;
-  background: radial-gradient(circle, rgba(109,40,217,0.2) 0%, transparent 70%);
-  top: -260px; left: 20%;
-  filter: blur(60px);
-}
-.fs-glow--blue {
-  width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(61,142,255,0.1) 0%, transparent 70%);
-  bottom: -150px; right: 4%;
-  filter: blur(80px);
+    position: absolute;
+    width: 1400px;
+    height: 841px;
+    background-color: #6D28D9;
+    border-radius: 50%;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(220px);
+    opacity: 18%;
+    z-index: 0;
 }
 
 /* ── Card ─────────────────────────────────────────────────────────────────── */
@@ -86,20 +84,22 @@
   gap: 16px;
   position: relative;
   z-index: 1;
+ 
 }
 
 /* Overview */
 .fs-overview {
   display: flex;
   flex-direction: row;
-  gap: 28px;
+  gap: 16px;
   align-items: stretch;
+
 }
 .fs-overview__left {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-width: 210px;
+  /* min-width: 210px; */
 }
 
 .fs-balance {
@@ -160,6 +160,7 @@
 
 .fs-overview__chart {
   flex: 1;
+  min-width: 0; /* ADD THIS */
   min-height: 160px;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
@@ -173,6 +174,28 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-y: auto;
+  max-height: 280px;
+  min-width: 0;  /* ADD THIS */
+  overflow-x: hidden; /* ADD THIS */
+}
+
+
+.fs-dashboard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.fs-dashboard::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fs-dashboard::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+}
+
+.fs-dashboard::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 230, 118, 0.3);
 }
 .fs-ai-insight__header {
   display: flex;
@@ -196,6 +219,8 @@
   margin: 0;
   border-left: 2px solid var(--green);
   padding-left: 12px;
+  word-break: break-word; /* ADD THIS */
+  overflow-wrap: break-word; /* ADD THIS */
 }
 .fs-btn-outline {
   display: inline-flex;
@@ -385,4 +410,52 @@
   .fs-top-row, .fs-bottom-row { grid-template-columns: 1fr; }
   .fs-overview { flex-direction: column; }
   .fs-overview__chart { min-height: 140px; }
+}
+
+/* ── Budgets card ─────────────────────────────────────────────────────────── */
+.fs-budgets-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.fs-btn-outline--sm {
+  padding: 3px 10px;
+  font-size: 11px;
+}
+
+.fs-budget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fs-budget-row__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.fs-budget-name {
+  font-size: 12px;
+  color: #c8d0e7;
+}
+
+.fs-budget-amt {
+  font-size: 11px;
+}
+
+.fs-budget-track {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.fs-budget-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
 }

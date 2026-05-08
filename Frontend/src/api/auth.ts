@@ -68,3 +68,20 @@ export async function fetchProfile(token: string): Promise<AuthUser | null> {
 
   return result.data?.[0] ?? null;
 }
+type ResetResponse = {
+  message: string;
+};
+
+export async function forgotPassword(email: string): Promise<void> {
+  await apiRequest<ResetResponse>('/api/users/forgot-password', {
+    method: 'POST',
+    body: { email },
+  });
+}
+
+export async function resetPassword(token: string, password: string): Promise<void> {
+  await apiRequest<ResetResponse>('/api/users/reset-password', {
+    method: 'POST',
+    body: { token, password },
+  });
+}

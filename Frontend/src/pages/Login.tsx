@@ -100,7 +100,7 @@ export default function Login() {
       />
     </div>
 
-    <a href="#">Forgot Password?</a>
+    <Link to="/forgotpassword">Forgot Password?</Link>
 
     {errorMessage && <p className="auth-error">{errorMessage}</p>}
 

@@ -1,0 +1,651 @@
+/* ── Page shell ───────────────────────────────────────────────────────────── */
+.budgets-page {
+    /* margin-top:-70px; */
+    display: flex;
+    flex-direction: column;
+    padding: 32px 40px 40px;
+    min-height: 100vh;
+    width: calc(100% - clamp(120px, 12vw, 200px));
+    margin-left: clamp(120px, 12vw, 180px);
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    font-family: aldrich;
+    
+}
+
+.oval {
+    position: absolute;
+    width: 1400px;
+    height: 841px;
+    background-color: #6D28D9;
+    border-radius: 50%;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(220px);
+    opacity: 0.18;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ── Page header row (title + refresh) ───────────────────────────────────── */
+.bud-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+    font-family: aldrich;
+    
+    /* margin-left:-20px; */
+    /* padding-left: -25px; */
+    
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    font-family: aldrich;
+}
+
+.bud-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bud-last-updated {
+    font-size: 12px;
+    color: #4a5880;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-refresh-btn {
+    background: #11183A;
+    border: 1px solid #232B55;
+    border-radius: 8px;
+    color: #6B7A9E;
+    font-size: 17px;
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.bud-refresh-btn:hover:not(:disabled) {
+    color: white;
+    background: #1a2240;
+    border-color: #3a4275;
+}
+.bud-refresh-btn.spinning {
+    animation: bud-spin 0.7s linear infinite;
+}
+@keyframes bud-spin { to { transform: rotate(360deg); } }
+
+/* ── Period filter tabs ───────────────────────────────────────────────────── */
+.bud-period-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+.bud-tab {
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid #232B55;
+    background: #11183A;
+    color: #6B7A9E;
+    font-size: 12px;
+    font-family: Roboto, sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.bud-tab:hover {
+    background: #1a2240;
+    color: #a0aec0;
+    border-color: #3a4275;
+}
+.bud-tab.active {
+    background: rgba(19, 172, 36, 0.12);
+    border-color: #13AC24;
+    color: #13AC24;
+    font-weight: 500;
+}
+
+/* ── Over-budget warning banner ───────────────────────────────────────────── */
+.bud-warning-banner {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #f87171;
+    font-size: 13px;
+    font-family: Roboto, sans-serif;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Two-column layout ────────────────────────────────────────────────────── */
+.bud-layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    align-items: flex-start;
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Shared card shell ────────────────────────────────────────────────────── */
+.bud-card {
+    background-color: #11183A;
+    border-radius: 12px;
+    border: 1px solid #232B55;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ── Left card ────────────────────────────────────────────────────────────── */
+.bud-progress-card {
+    flex: 1;
+    min-width: 0;
+}
+
+.bud-progress-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.bud-section-title {
+    font-family: Roboto, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+}
+
+.bud-new-btn {
+    background: #13AC24;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: Roboto, sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.bud-new-btn:hover { background: #0f9120; }
+
+/* ── Budget list ──────────────────────────────────────────────────────────── */
+.bud-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bud-empty {
+    text-align: center;
+    color: #4a5880;
+    padding: 32px 0;
+    font-size: 13px;
+    font-family: Roboto, sans-serif;
+    margin: 0;
+}
+
+/* ── Individual budget item ───────────────────────────────────────────────── */
+.bud-item {
+    background: #0A0F2B;
+    border: 1px solid #1a2040;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+}
+.bud-item:hover {
+    border-color: #232B55;
+}
+
+/* Over-limit: left accent stripe */
+.bud-item--over {
+    border-left: 3px solid rgba(239, 68, 68, 0.6);
+}
+
+.bud-item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.bud-item-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Name + period badge stacked */
+.bud-item-meta {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    gap: 2px;
+}
+
+.bud-item-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    font-family: Roboto, sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bud-item-period-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #4a5880;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-item-amount {
+    font-size: 13px;
+    white-space: nowrap;
+    font-family: Roboto, sans-serif;
+}
+
+/* ── Action buttons ───────────────────────────────────────────────────────── */
+.bud-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.bud-confirm-text {
+    font-size: 12px;
+    color: #EF4444;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.bud-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    padding: 0;
+}
+
+.bud-del-btn  { color: #6B7A9E; }
+.bud-del-btn:hover { background: #2a1515; color: #EF4444; border-color: #3d1515; }
+
+.bud-yes-btn  { color: #EF4444; font-weight: bold; font-size: 14px; }
+.bud-yes-btn:hover:not(:disabled) { background: #2a1515; border-color: #3d1515; }
+.bud-yes-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.bud-no-btn   { color: #6B7A9E; }
+.bud-no-btn:hover { background: #1a2240; border-color: #232B55; }
+
+/* ── Progress bar ─────────────────────────────────────────────────────────── */
+.bud-bar-track {
+    width: 100%;
+    height: 7px;
+    background: #1a2040;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bud-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+/* ── Item footer (remaining + tx count) ──────────────────────────────────── */
+.bud-item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.bud-over-text {
+    margin: 0;
+    font-size: 11px;
+    color: #EF4444;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-rem-text {
+    margin: 0;
+    font-size: 11px;
+    color: #10B981;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-tx-count {
+    font-size: 11px;
+    color: #4a5880;
+    font-family: Roboto, sans-serif;
+}
+
+/* ── Right card: overview ─────────────────────────────────────────────────── */
+.bud-overview-card {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.bud-overview-sub {
+    font-size: 13px;
+    color: #6B7A9E;
+    margin: 4px 0 16px;
+    font-family: Roboto, sans-serif;
+}
+
+/* Donut */
+.bud-donut-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 16px;
+}
+
+.bud-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.bud-donut-value {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    font-family: Roboto, sans-serif;
+    white-space: nowrap;
+}
+
+.bud-donut-sub {
+    display: block;
+    font-size: 11px;
+    color: #6B7A9E;
+    font-family: Roboto, sans-serif;
+}
+
+/* ── Summary stats row ────────────────────────────────────────────────────── */
+.bud-stats-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 12px 0;
+    border-top: 1px solid #1a2040;
+    border-bottom: 1px solid #1a2040;
+    margin: 0 0 14px;
+}
+
+.bud-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.bud-stat-value {
+    font-size: 19px;
+    font-weight: 700;
+    color: white;
+    font-family: Roboto, sans-serif;
+    line-height: 1;
+}
+
+.bud-stat-label {
+    font-size: 10px;
+    color: #4a5880;
+    font-family: Roboto, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bud-divider {
+    height: 1px;
+    background: #232B55;
+    margin: 14px 0;
+}
+
+/* ── Category spending bars ───────────────────────────────────────────────── */
+.bud-avg-label {
+    font-size: 12px;
+    color: #6B7A9E;
+    margin: 0 0 10px;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-avg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bud-avg-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bud-avg-name {
+    font-size: 12px;
+    color: #A7AFD6;
+    width: 72px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-avg-track {
+    flex: 1;
+    height: 5px;
+    background: #1a2040;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.bud-avg-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.bud-avg-amount {
+    font-size: 11px;
+    color: #6B7A9E;
+    font-family: Roboto, sans-serif;
+    min-width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* ── Error banner ─────────────────────────────────────────────────────────── */
+.bud-error-banner {
+    background: #1a0f0f;
+    border: 1px solid #3d1515;
+    color: #f87171;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Modal overlay ────────────────────────────────────────────────────────── */
+.bud-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bud-modal {
+    background: #11183A;
+    border: 1px solid #232B55;
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: budModalIn 0.2s ease;
+}
+
+@keyframes budModalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.bud-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.bud-modal-title {
+    font-family: Roboto, sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 4px;
+}
+
+.bud-modal-sub {
+    font-size: 12px;
+    color: #6B7A9E;
+    margin: 0;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-close-btn {
+    background: transparent;
+    border: none;
+    color: #6B7A9E;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+    transition: color 0.15s, background 0.15s;
+}
+.bud-close-btn:hover { color: white; background: #232B55; }
+
+.bud-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.bud-label {
+    font-size: 12px;
+    color: #6B7A9E;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-input {
+    width: 100%;
+    background: #0A0F2B;
+    border: 1px solid #232B55;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: white;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.bud-input:focus { border-color: #13AC24; }
+.bud-input option { background: #0A0F2B; }
+
+.bud-period-row {
+    display: flex;
+    gap: 8px;
+}
+
+.bud-period-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #232B55;
+    background: #0A0F2B;
+    color: #6B7A9E;
+    font-size: 13px;
+    font-family: Roboto, sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.bud-period-btn.active {
+    background: rgba(19, 172, 36, 0.15);
+    border-color: #13AC24;
+    color: #13AC24;
+    font-weight: 500;
+}
+
+.bud-err {
+    font-size: 12px;
+    color: #f87171;
+    margin: 0 0 8px;
+    font-family: Roboto, sans-serif;
+}
+
+.bud-submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: #13AC24;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: Roboto, sans-serif;
+    transition: background 0.2s;
+    margin-top: 4px;
+}
+.bud-submit-btn:hover:not(:disabled) { background: #0f9120; }
+.bud-submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }

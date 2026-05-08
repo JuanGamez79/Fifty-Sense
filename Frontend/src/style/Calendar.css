@@ -1,0 +1,494 @@
+/* ── Budgets Page ────────────────────────────────────────────────────────────── */
+
+.budgets-page {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    min-height: 100vh;
+    width: calc(100% - clamp(120px, 12vw, 200px));
+    margin-left: clamp(120px, 12vw, 200px);
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.oval {
+    position: absolute;
+    width: 1400px;
+    height: 841px;
+    background-color: #6D28D9;
+    border-radius: 50%;
+    top: 75%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(220px);
+    opacity: 0.18;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.page-title {
+    font-family: Roboto, sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+}
+
+/* ── Layout ───────────────────────────────────────────────────────────────────── */
+
+.budgets-layout {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    align-items: flex-start;
+}
+
+.card {
+    background-color: #11183A;
+    border-radius: 12px;
+    border: 1px solid #232B55;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.card-title {
+    font-family: Roboto, sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    margin: 0 0 4px 0;
+}
+
+/* ── Budget Progress Card ─────────────────────────────────────────────────────── */
+
+.budget-progress-card {
+    flex: 1;
+    min-width: 0;
+}
+
+.budget-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.new-budget-btn {
+    background: #13AC24;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: Roboto, sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.new-budget-btn:hover {
+    background: #0f9120;
+}
+
+.budget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.budget-empty-state {
+    text-align: center;
+    color: #4a5880;
+    padding: 40px 16px;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+}
+
+/* ── Budget Item ──────────────────────────────────────────────────────────────── */
+
+.budget-item {
+    background: #0A0F2B;
+    border: 1px solid #1a2040;
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+
+.budget-item-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.budget-item-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.budget-item-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+    font-family: Roboto, sans-serif;
+    flex: 1;
+}
+
+.budget-item-amount {
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.budget-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.budget-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    padding: 0;
+}
+
+.budget-action-delete {
+    color: #6B7A9E;
+}
+.budget-action-delete:hover {
+    background: #2a1515;
+    color: #EF4444;
+    border-color: #3d1515;
+}
+
+.budget-action-confirm {
+    color: #EF4444;
+    font-weight: bold;
+    font-size: 14px;
+}
+.budget-action-confirm:hover:not(:disabled) {
+    background: #2a1515;
+    border-color: #3d1515;
+}
+.budget-action-confirm:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.budget-action-cancel {
+    color: #6B7A9E;
+}
+.budget-action-cancel:hover {
+    background: #1a2240;
+    border-color: #232B55;
+}
+
+.budget-confirm-text {
+    font-size: 12px;
+    color: #EF4444;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.budget-progress-track {
+    width: 100%;
+    height: 7px;
+    background: #1a2040;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.budget-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}
+
+.budget-over-warning {
+    font-size: 11px;
+    color: #EF4444;
+    margin-top: 6px;
+    font-family: Roboto, sans-serif;
+}
+
+/* ── Overview Column ──────────────────────────────────────────────────────────── */
+
+.budget-overview-col {
+    width: 260px;
+    flex-shrink: 0;
+}
+
+.budget-overview-card {}
+
+.budget-overview-sub {
+    font-size: 13px;
+    color: #6B7A9E;
+    margin-bottom: 16px;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-donut-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 16px;
+}
+
+.budget-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.budget-donut-remaining {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    font-family: Roboto, sans-serif;
+    white-space: nowrap;
+}
+
+.budget-donut-label {
+    display: block;
+    font-size: 11px;
+    color: #6B7A9E;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-divider {
+    height: 1px;
+    background: #232B55;
+    margin: 14px 0;
+}
+
+.budget-avg-title {
+    font-size: 12px;
+    color: #6B7A9E;
+    margin-bottom: 10px;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-avg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.budget-avg-empty {
+    font-size: 13px;
+    color: #4a5880;
+    text-align: center;
+    padding: 8px 0;
+}
+
+.budget-avg-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.budget-avg-name {
+    font-size: 12px;
+    color: #A7AFD6;
+    width: 80px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-avg-track {
+    flex: 1;
+    height: 5px;
+    background: #1a2040;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.budget-avg-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+/* ── New Budget Modal ─────────────────────────────────────────────────────────── */
+
+.budget-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.budget-modal {
+    background: #11183A;
+    border: 1px solid #232B55;
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: budgetModalIn 0.2s ease;
+}
+
+@keyframes budgetModalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.budget-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.budget-modal-header h2 {
+    font-family: Roboto, sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 4px 0;
+}
+
+.budget-modal-sub {
+    font-size: 12px;
+    color: #6B7A9E;
+    margin: 0;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-close-btn {
+    background: transparent;
+    border: none;
+    color: #6B7A9E;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+}
+.budget-close-btn:hover {
+    color: white;
+    background: #232B55;
+}
+
+.budget-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.budget-field-label {
+    font-size: 12px;
+    color: #6B7A9E;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-field-input {
+    width: 100%;
+    background: #0A0F2B;
+    border: 1px solid #232B55;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: white;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.budget-field-input:focus {
+    border-color: #13AC24;
+}
+
+.budget-field-input option {
+    background: #0A0F2B;
+}
+
+.budget-period-toggle {
+    display: flex;
+    gap: 8px;
+}
+
+.budget-period-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #232B55;
+    background: #0A0F2B;
+    color: #6B7A9E;
+    font-size: 13px;
+    font-family: Roboto, sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.budget-period-btn.active {
+    background: rgba(19, 172, 36, 0.15);
+    border-color: #13AC24;
+    color: #13AC24;
+    font-weight: 500;
+}
+
+.budget-err {
+    font-size: 12px;
+    color: #f87171;
+    margin: 0;
+    font-family: Roboto, sans-serif;
+}
+
+.budget-confirm-btn {
+    width: 100%;
+    padding: 13px;
+    background: #13AC24;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: Roboto, sans-serif;
+    transition: background 0.2s;
+}
+
+.budget-confirm-btn:hover:not(:disabled) {
+    background: #0f9120;
+}
+
+.budget-confirm-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}

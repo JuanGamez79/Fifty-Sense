@@ -11,10 +11,7 @@ const navLinks = [
   { to: '/transactions',  label: 'Transactions'  },
   { to: '/budgets',       label: 'Budgets'       },
   { to: '/goals',         label: 'Goals'         },
-  { to: '/calendar',      label: 'Calendar'      },
-  { to: '/analytics',     label: 'Analytics'     },
-  { to: '/ai',            label: 'AI'            },
-  { to: '/recap',         label: 'Recap'         },
+  { to: '/ai',            label: 'AI Insights'            },
 ];
 
 export default function NavBar() {

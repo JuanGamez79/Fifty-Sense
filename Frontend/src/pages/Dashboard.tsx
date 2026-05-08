@@ -20,6 +20,9 @@ ChartJS.register(
   LineElement, BarElement, Tooltip, Filler
 );
 
+const OLLAMA_MODEL = "hf.co/QuantFactory/Llama-3-8B-Instruct-Finance-RAG-GGUF:Q4_K_M";
+const OLLAMA_URL   = "http://192.168.1.18:11434/api/chat";
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Account {
   account_id: string;
@@ -37,6 +40,25 @@ interface Transaction {
   category_id?: string;
 }
 
+interface Category {
+  _id: string;
+  category_name: string;
+  icon?: string;
+}
+
+interface Budget {
+  _id: string;
+  budget_id: string;
+  user_id: string;
+  category_name: string;
+  limit_amount: number;
+  period: "monthly" | "weekly" | "yearly";
+}
+
+interface BudgetWithSpent extends Budget {
+  spent: number;
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
@@ -50,35 +72,31 @@ function unwrapArray<T>(raw: any): T[] {
   return [];
 }
 
-// ── FIX 1: Build monthly net balance (income - expenses) not just expenses ────
+function getCategoryIcons(): Record<string, string> {
+  try {
+    const s = localStorage.getItem("categoryIcons");
+    return s ? JSON.parse(s) : {};
+  } catch { return {}; }
+}
+
 function buildMonthlyBalance(txs: Transaction[], accounts: Account[]) {
   const now = new Date();
   const labels: string[] = [];
-  const data: number[] = [];
-
-  // Start from total current balance and work backwards
   const currentBalance = accounts.reduce((s, a) => s + Number(a.balance), 0);
-
-  // Build month-by-month net changes
   const monthChanges: number[] = [];
+
   for (let i = 5; i >= 0; i--) {
     const target = new Date(now.getFullYear(), now.getMonth() - i, 1);
     labels.push(target.toLocaleString("default", { month: "short" }));
     const net = txs
       .filter((t) => {
         const d = new Date(t.date);
-        return (
-          d.getFullYear() === target.getFullYear() &&
-          d.getMonth() === target.getMonth()
-        );
+        return d.getFullYear() === target.getFullYear() && d.getMonth() === target.getMonth();
       })
-      .reduce((s, t) => {
-        return t.type === "income" ? s + Number(t.amount) : s - Number(t.amount);
-      }, 0);
+      .reduce((s, t) => t.type === "income" ? s + Number(t.amount) : s - Number(t.amount), 0);
     monthChanges.push(net);
   }
 
-  // Reconstruct running balance going backwards from current
   let balance = currentBalance;
   const balances = new Array(6).fill(0);
   balances[5] = balance;
@@ -90,20 +108,32 @@ function buildMonthlyBalance(txs: Transaction[], accounts: Account[]) {
   return { labels, data: balances };
 }
 
-// ── FIX 2: Build weekly chart showing BOTH income and expenses ────────────────
 function buildWeeklyAmounts(txs: Transaction[]) {
-  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const DAYS: string[] = [];
   const income  = new Array(7).fill(0);
   const expense = new Array(7).fill(0);
   const now = new Date();
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-  monday.setHours(0, 0, 0, 0);
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day   = String(date.getDate()).padStart(2, "0");
+    DAYS.push(`${month}/${day}`);
+  }
+
+  const dateMap: Record<string, number> = {};
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - (6 - i));
+    date.setHours(0, 0, 0, 0);
+    dateMap[date.toDateString()] = i;
+  }
 
   txs.forEach((t) => {
-    const d = new Date(t.date);
-    if (d >= monday) {
-      const idx = (d.getDay() + 6) % 7;
+    const d   = new Date(t.date);
+    const idx = dateMap[d.toDateString()];
+    if (idx !== undefined) {
       if (t.type === "income")  income[idx]  += Number(t.amount);
       if (t.type === "expense") expense[idx] += Number(t.amount);
     }
@@ -112,7 +142,8 @@ function buildWeeklyAmounts(txs: Transaction[]) {
   return { DAYS, income, expense };
 }
 
-function generateInsight(txs: Transaction[], totalBalance: number): string {
+// Fallback static insight (used when Ollama is unreachable)
+function generateStaticInsight(txs: Transaction[], totalBalance: number): string {
   const now = new Date();
   const msPerDay = 86_400_000;
   const thisWeek = txs
@@ -142,10 +173,13 @@ export default function Dashboard() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
-  const [accounts, setAccounts]         = useState<Account[]>([]);
+  const [accounts,     setAccounts]     = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState<string | null>(null);
+  const [budgets,      setBudgets]      = useState<BudgetWithSpent[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [error,        setError]        = useState<string | null>(null);
+  const [aiInsight,    setAiInsight]    = useState<string>("Analysing your finances…");
+  const [aiLoading,    setAiLoading]    = useState(false);
 
   const fetchAll = useCallback(async () => {
     const userId = (user as any)?.user_id;
@@ -161,25 +195,49 @@ export default function Dashboard() {
       } catch { accs = []; }
       setAccounts(accs);
 
-      if (accs.length === 0) { setTransactions([]); return; }
+      let cats: Category[] = [];
+      try {
+        const raw = await apiRequest<any>(`/api/categories/${userId}`, { token });
+        cats = unwrapArray<Category>(raw);
+        const icons = getCategoryIcons();
+        cats = cats.map(c => ({ ...c, icon: icons[c.category_name] || c.icon || "💳" }));
+      } catch { cats = []; }
 
-      const txBatches = await Promise.all(
-        accs.map(async (acc) => {
-          try {
-            const raw = await apiRequest<any>(`/api/transactions/account/${acc.account_id}`, { token });
-            return unwrapArray<Transaction>(raw);
-          } catch { return [] as Transaction[]; }
-        })
-      );
+      let allTx: Transaction[] = [];
+      if (accs.length > 0) {
+        const txBatches = await Promise.all(
+          accs.map(async (acc) => {
+            try {
+              const raw = await apiRequest<any>(`/api/transactions/account/${acc.account_id}`, { token });
+              return unwrapArray<Transaction>(raw);
+            } catch { return [] as Transaction[]; }
+          })
+        );
+        allTx = Object.values(
+          txBatches.flat().reduce<Record<string, Transaction>>((map, t) => {
+            map[t.transaction_id] = t;
+            return map;
+          }, {})
+        ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      }
+      setTransactions(allTx);
 
-      const merged = Object.values(
-        txBatches.flat().reduce<Record<string, Transaction>>((map, t) => {
-          map[t.transaction_id] = t;
-          return map;
-        }, {})
-      ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      try {
+        const budRaw = await apiRequest<any>(`/api/budgets/user/${userId}`, { token });
+        const raw = unwrapArray<Budget>(budRaw);
+        const now = new Date();
+        const spentMap: Record<string, number> = {};
+        for (const tx of allTx) {
+          if (tx.type !== "expense") continue;
+          const d = new Date(tx.date);
+          if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) continue;
+          const cat = cats.find(c => c._id === tx.category_id)
+                   ?? cats.find(c => c.category_name === tx.category_id);
+          if (cat) spentMap[cat.category_name] = (spentMap[cat.category_name] || 0) + Number(tx.amount);
+        }
+        setBudgets(raw.map(b => ({ ...b, spent: spentMap[b.category_name] || 0 })));
+      } catch { setBudgets([]); }
 
-      setTransactions(merged);
     } catch (err: any) {
       setError(err?.message ?? "Could not load dashboard data.");
     } finally {
@@ -188,6 +246,53 @@ export default function Dashboard() {
   }, [user, token]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // ── AI insight: fires after data loads ────────────────────────────────────
+  useEffect(() => {
+    if (loading) return;
+
+    const totalIncome   = transactions.filter(t => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
+    const totalExpenses = transactions.filter(t => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
+    const balance       = accounts.reduce((s, a) => s + Number(a.balance), 0);
+    const net           = totalIncome - totalExpenses;
+    const f             = (n: number) => `$${Math.abs(n).toFixed(2)}`;
+
+    if (!transactions.length && !accounts.length) {
+      setAiInsight("Add transactions to start tracking your spending!");
+      return;
+    }
+
+    setAiLoading(true);
+    fetch(OLLAMA_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        stream: false,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are Fifty, a concise financial assistant. Write exactly ONE sentence (max 20 words) summarising the user's current financial health. No markdown, no lists, no extra commentary. Just the sentence.",
+          },
+          {
+            role: "user",
+            content: `Income: ${f(totalIncome)}, Expenses: ${f(totalExpenses)}, Net: ${net >= 0 ? "+" : ""}${f(net)}, Balance: ${f(balance)}.`,
+          },
+        ],
+      }),
+    })
+      .then(r => r.json())
+      .then(j => {
+        const text = j?.message?.content?.trim();
+        setAiInsight(text || generateStaticInsight(transactions, balance));
+      })
+      .catch(() => {
+        setAiInsight(generateStaticInsight(transactions, totalBalance));
+      })
+      .finally(() => setAiLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   // ── Derived numbers ───────────────────────────────────────────────────────
   const totalBalance  = accounts.reduce((s, a) => s + Number(a.balance), 0);
@@ -199,12 +304,10 @@ export default function Dashboard() {
   const { labels: monthLabels, data: monthlyData } = buildMonthlyBalance(transactions, accounts);
   const { DAYS, income: weekIncome, expense: weekExpense } = buildWeeklyAmounts(transactions);
   const recentFive = transactions.slice(0, 5);
-  const aiInsight  = generateInsight(transactions, totalBalance);
 
   const hasAccounts     = accounts.length > 0;
   const hasTransactions = transactions.length > 0;
 
-  // ── FIX 1: Overview chart shows running balance ───────────────────────────
   const overviewLine = {
     labels: monthLabels,
     datasets: [{
@@ -234,7 +337,6 @@ export default function Dashboard() {
     },
   };
 
-  // ── FIX 2: Weekly chart shows income + expenses, always renders ───────────
   const maxWeekExpense = Math.max(...weekExpense, 1);
   const spendingBar = {
     labels: DAYS,
@@ -255,7 +357,7 @@ export default function Dashboard() {
         label: "Expenses",
         data: weekExpense,
         backgroundColor: weekExpense.map((v) =>
-          v === maxWeekExpense && v > 0 ? "#FF4D6D" : "#1e2d6e"
+          v === maxWeekExpense && v > 0 ? "#FF4D6D" : "#FF4D6D"
         ),
         borderRadius: 4,
         borderSkipped: false,
@@ -290,7 +392,6 @@ export default function Dashboard() {
     },
   };
 
-  // ── Weekly amounts row — show income or expense whichever is nonzero ──────
   const weekDisplayAmounts = DAYS.map((_, i) =>
     weekIncome[i] > 0 || weekExpense[i] > 0
       ? fmtShort(weekIncome[i] - weekExpense[i])
@@ -322,13 +423,12 @@ export default function Dashboard() {
 
   return (
     <div className="fs-dashboard">
+        <h1 className="page-title">Dashboard</h1>
       <div className="fs-glow fs-glow--purple" />
       <div className="fs-glow fs-glow--blue" />
-
+      
       {/* ── Top row ──────────────────────────────────────────────────────── */}
       <div className="fs-top-row">
-
-        {/* Overview card */}
         <div className="fs-card fs-overview">
           <div className="fs-overview__left">
             <span className="fs-label">Overview</span>
@@ -365,7 +465,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* FIX 1: Chart shows once accounts exist, reflects real balance */}
           <div className="fs-overview__chart">
             {hasAccounts
               ? <Line data={overviewLine} options={overviewLineOpts} />
@@ -379,23 +478,31 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* AI Insight */}
         <div className="fs-card fs-ai-insight">
           <div className="fs-ai-insight__header">
             <span className="fs-label">AI Insight</span>
-            <span className="fs-ai-spark">✦</span>
+            <span className={`fs-ai-spark ${aiLoading ? "fs-ai-spark--pulse" : ""}`}>✦</span>
           </div>
-          <blockquote className="fs-ai-quote">"{aiInsight}"</blockquote>
-          <button className="fs-btn-outline">View tips →</button>
+          <blockquote className="fs-ai-quote">
+            {aiLoading ? (
+              <span className="fs-ai-loading-dots">
+                <span /><span /><span />
+              </span>
+            ) : (
+              `"${aiInsight}"`
+            )}
+          </blockquote>
+          <button className="fs-btn-outline" onClick={() => navigate("/ai")}>
+            View insights →
+          </button>
         </div>
       </div>
 
       {/* ── Bottom row ───────────────────────────────────────────────────── */}
       <div className="fs-bottom-row">
 
-        {/* Spending trends — FIX 2: always renders chart, shows income too */}
         <div className="fs-card fs-trends">
-          <span className="fs-label">Activity — this week</span>
+          <span className="fs-label">Activity — last 7 days</span>
           <div className="fs-trends__amounts">
             {weekDisplayAmounts.map((v, i) => (
               <span key={i} className="fs-trends__amt">{v}</span>
@@ -406,33 +513,54 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right column */}
         <div className="fs-right-col">
 
-          {/* Accounts */}
-          <div className="fs-card fs-accounts-card">
-            <span className="fs-label">Accounts</span>
-            {!hasAccounts
-              ? (
-                <div className="fs-empty-state">
-                  <span>🏦</span>
-                  <p>No accounts yet</p>
-                  <button className="fs-btn-outline" onClick={() => navigate("/accounts")}>
-                    + Add Account
-                  </button>
-                </div>
-              )
-              : accounts.map((a) => (
-                <div className="fs-account-row" key={a.account_id}>
-                  <div className="fs-account-icon">{a.account_name.charAt(0).toUpperCase()}</div>
-                  <div className="fs-account-info">
-                    <span className="fs-account-name">{a.account_name}</span>
-                    <span className="fs-account-id">···{a.account_id.slice(-4)}</span>
-                  </div>
-                  <span className="fs-account-bal">{fmt(a.balance)}</span>
-                </div>
-              ))
-            }
+          {/* Budgets card */}
+          <div className="fs-card fs-budgets-card">
+            <div className="fs-budgets-card__header">
+              <span className="fs-label" style={{ margin: 0 }}>Budgets</span>
+              <button className="fs-btn-outline fs-btn-outline--sm" onClick={() => navigate("/budgets")}>
+                View all →
+              </button>
+            </div>
+
+            {budgets.length === 0 ? (
+              <div className="fs-empty-state">
+                <span>📊</span>
+                <p>No budgets yet</p>
+                <button className="fs-btn-outline" onClick={() => navigate("/budgets")}>
+                  + Create Budget
+                </button>
+              </div>
+            ) : (
+              <div className="fs-budget-list">
+                {budgets.slice(0, 4).map(b => {
+                  const pct  = Math.min((b.spent / b.limit_amount) * 100, 100);
+                  const over = b.spent > b.limit_amount;
+                  return (
+                    <div key={b.budget_id} className="fs-budget-row">
+                      <div className="fs-budget-row__top">
+                        <span className="fs-budget-name">{b.category_name}</span>
+                        <span className="fs-budget-amt" style={{ color: over ? "#FF4D6D" : "#6B7A9E" }}>
+                          ${b.spent.toFixed(0)} / ${b.limit_amount.toFixed(0)}
+                        </span>
+                      </div>
+                      <div className="fs-budget-track">
+                        <div
+                          className="fs-budget-fill"
+                          style={{
+                            width: `${pct}%`,
+                            background: over
+                              ? "linear-gradient(90deg,#EF4444,#F87171)"
+                              : "linear-gradient(90deg,#00E676,#10B981)",
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Recent transactions */}
