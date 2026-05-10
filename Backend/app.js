@@ -1,4 +1,4 @@
-cat > /Juan/Fifty-Sense/Backend/app.js << 'EOF'
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -64,4 +64,3 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
   console.log(`Swagger docs available at http://backend.unearned.duckdns.org/api-docs`);
 });
-EOF
